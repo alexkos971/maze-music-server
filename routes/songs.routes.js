@@ -1,7 +1,4 @@
 const { Router } = require("express");
-const getDuration = require('get-audio-duration');
-const fs = require('fs');
-const request = require('request');
 
 const Song = require('../models/Song');
 const User = require('../models/User');
