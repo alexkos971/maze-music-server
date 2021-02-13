@@ -1,5 +1,5 @@
 {
-  "name": "maze-music",
+  "name": "maze-music-server",
   "version": "1.0.0",
   "description": "Music web app",
   "main": "app.js",
