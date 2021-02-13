@@ -9,6 +9,10 @@ app.use('/api/auth', require('./routes/auth.routes'));
 app.use('/api/data', require('./routes/data.routes'));
 app.use('/api/songs', require('./routes/songs.routes'));
 
+app.get('/', (req, res) => {
+    res.end(`<h1>Now path ${req.path}</h1>`)
+})
+
 const PORT = process.env.PORT || config.get("port") || 5050;
 
 const start = async () => {
