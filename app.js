@@ -5,14 +5,15 @@ const config = require('config');
 const app = express();
 
 app.use(express.json({ extended: true }));
-app.use('/api/auth', require('./routes/auth.routes'));
-app.use('/api/data', require('./routes/data.routes'));
-app.use('/api/songs', require('./routes/songs.routes'));
 
 app.use((req, res, next) => {
     res.header('Access-Control-Allow-Origin', '*');
     next();
 });
+
+app.use('/api/auth', require('./routes/auth.routes'));
+app.use('/api/data', require('./routes/data.routes'));
+app.use('/api/songs', require('./routes/songs.routes'));
 
 app.get('/', (req, res) => {
     res.end(`<h1>Now path ${req.path}</h1>`)
