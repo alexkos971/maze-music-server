@@ -1,0 +1,5 @@
+{
+    "mongoUrl": "mongodb+srv://alexkos:1234qwer@cluster0.ewrgz.azure.mongodb.net/app?retryWrites=true&w=majority",
+    "port": "5050",
+    "jwtKey": "alexkey"
+}
