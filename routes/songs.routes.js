@@ -22,7 +22,7 @@ router.get('/recomendation', async (req, res) => {
 // GET my saved songs
 router.get('/saved', async (req, res) => {
     try {
-        const songs = await req.body.songs.map((item) => {
+        const songs = await req.body.songs.map(async (item) => {
             return await Song.find({ _id: item._id });
         });
         
