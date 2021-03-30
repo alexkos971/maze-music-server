@@ -19,11 +19,19 @@ router.get('/recomendation', async (req, res) => {
     }
 });
 
-// GET my songs
-router.get('/saved', auth, async (req, res) => {
+// GET my saved songs
+router.get('/saved', async (req, res) => {
     try {
-        const songs = await Song.find({ artist_id: req.user.userId });
-        res.json(songs);
+        const songs = await req.body.songs.map((item) => {
+            return await Song.find({ _id: item._id });
+        });
+        
+        if (songs) {
+            res.json(songs);
+        }
+        else {
+            res.status(400).json({message: "Нет сохраненных треков"})
+        }
     }
     catch (e) {
         res.status(500).json({ message: 'Что-то пошло не так...' });
