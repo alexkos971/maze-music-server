@@ -20,8 +20,12 @@ router.get('/artists', async (req, res) => {
 // GET Artist
 router.get('/artist/:id', async (req, res) => {
     try {
-        const artists = await User.findById(req.params.id);
-        res.json(artists);
+        const artist = await User.findById(req.params.id);
+
+        if (!artist) {
+            return res.json(404).json({ message: 'Не найдено' })
+        }
+        res.json(artist);
     }
     catch (e) {
         res.status(500).json({ message: 'Что-то пошло не так...' });
