@@ -11,7 +11,7 @@ let shema = new Schema({
 
     lyrics: {type: String, default: ""},
     src: {type: String, required: true},
-    // duration: {type: String, default: '0:00' },
+    duration: {type: String, default: '0:00', required: true },
     date: {type: Date, default: Date.now()},
     cover: {type: String, default: "https://fwrental.com/wp-content/uploads/2019/02/retro-record-rug.jpg"},
     listenings: { type: Number, default: 0 }

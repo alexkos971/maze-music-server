@@ -39,7 +39,7 @@ router.post('/name', auth, async (req, res) => {
         
             // await songs.save();
             
-            res.status(200).json({ message: "Name is updates", name: user.name})
+        res.status(200).json({ message: "Name is updates", name: user.name})
 
     }
     catch (e) {

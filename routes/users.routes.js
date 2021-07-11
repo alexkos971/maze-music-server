@@ -1,5 +1,6 @@
 const { Router } = require("express");
 const User = require("../models/User");
+const Song = require("../models/Song");
 const auth = require('../middleware/auth.middleware');
 
 const router = Router();
@@ -27,15 +28,20 @@ router.get('/artist/:id', async (req, res) => {
     }
 });
 
+
 // GET User
 router.get('/profile', auth, async (req, res) => {
     try {
         const me = await User.findOne({ _id: req.user.userId});
 
         if (me) {
+            me.saved_songs.map(async (item) => {
+                const songs = await Song.find({ _id: item })
+                me.saved_songs = songs;
+                res.status(200).send(me);
+                return item;
+            })
             // let profile = Object.assign(me._doc, { avatar });
-
-            res.send(me);
         }
     }
     catch (e) {
