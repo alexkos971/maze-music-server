@@ -80,9 +80,9 @@ router.post('/upload', auth, async (req, res) => {
 
         await song.save()
 
-        artist.songs.push(song);
+        // artist.songs.push(song);
         
-        await artist.save(); 
+        // await artist.save(); 
 
         res.status(200).json({ message: "Track is uploaded", track: song })
 

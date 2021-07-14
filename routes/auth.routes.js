@@ -6,6 +6,7 @@ const config = require('config');
 const { check, validationResult } = require('express-validator');
 // import Email from 'email-templates';
 const User = require('../models/User');
+let cors = require('cors')
 
 // Register
 router.post('/register', 
@@ -41,7 +42,7 @@ router.post('/register',
 });
 
 // Login
-router.post('/login',
+router.post('/login', cors(),
     [
         check('email', 'Введите корректный email').normalizeEmail().isEmail(),
         check('password', 'Пароль неверный').exists()
@@ -55,25 +56,25 @@ router.post('/login',
                 errors: errors.array() 
             });
         }
-
+        
         const { email, password } = req.body;
-
+        
         const user = await User.findOne({ email });
         if (!user) {
             return res.status(400).json({ message: 'Пользователь не найден...' });
         }
-
+        
         const isMatch = await bcrypt.compare(password, user.password);
         if (!isMatch) {
             return res.status(400).json({ message: 'Неверный пароль' });
         }
-
+        
         const token = jwt.sign(
             {userId: user.id},
             config.get('jwtKey'),
             {});
-
-        res.json({ email, token, userId: user.id })
+        
+        res.status(200).json({ email, token, userId: user.id })
     }
     catch (e) {
         res.status(500).json({ message: 'Что-то пошло не так...' });

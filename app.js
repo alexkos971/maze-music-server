@@ -1,15 +1,24 @@
 const express = require("express");
 const mongoose = require('mongoose');
 const config = require('config');
+let cors = require('cors')
 
 const app = express();
 
 app.use(express.json({ extended: true }));
 
+// let corsOptions = {
+//     origin: 'http://example.com',
+//     optionsSuccessStatus: 200 // some legacy browsers (IE11, various SmartTVs) choke on 204
+// }
+
 app.use((req, res, next) => {
     res.header('Access-Control-Allow-Origin', '*');
     next();
 });
+
+// app.use(cors(corsOptions))
+
 
 app.use('/api/auth', require('./routes/auth.routes'));
 app.use('/api/users', require('./routes/users.routes'));
