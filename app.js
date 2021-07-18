@@ -24,6 +24,7 @@ app.use('/api/auth', require('./routes/auth.routes'));
 app.use('/api/users', require('./routes/users.routes'));
 app.use('/api/songs', require('./routes/songs.routes'));
 app.use('/api/changes', require('./routes/changes.routes'));
+app.use('/api/upload', require('./routes/uploads.routes'));
 
 app.get('/', (req, res) => {
     res.end(`<h1>Now path ${req.path}</h1>`)

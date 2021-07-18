@@ -1,15 +1,19 @@
 const { Router } = require('express');
 const router = Router();
 
+const multer  = require('multer')
+const upload = multer({ dest: 'uploads/' })
+
 const User = require('../models/User');
 const Song = require('../models/Song');
 
 const auth = require('../middleware/auth.middleware');
 
 // change avatar
-router.post('/avatar', auth, async (req, res) => {
+router.post('/avatar', upload.single('avatar'), auth, async (req, res) => {
     try {
         let user = await User.findById(req.user.userId)
+        const {avatar} = req.files[0]
         
         user.avatar = req.body.avatar;
         

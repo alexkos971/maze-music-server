@@ -7,13 +7,13 @@ let shema = new Schema({
     artist_id: {type: Types.ObjectId, ref: "User"},
     
     album_name: { type: String },
-    album_id : { type: Types.ObjectId, ref: "Album", default: Types.ObjectId },
+    album_id : { type: Types.ObjectId, ref: "Album" },
 
     lyrics: {type: String, default: ""},
     src: {type: String, required: true},
     duration: {type: String, default: '0:00', required: true },
     date: {type: Date, default: Date.now()},
-    cover: {type: String, default: "https://fwrental.com/wp-content/uploads/2019/02/retro-record-rug.jpg"},
+    cover: { type: String, required: true },
     listenings: { type: Number, default: 0 }
 })
 

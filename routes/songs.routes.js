@@ -53,46 +53,6 @@ router.delete('/delete/:id', auth, async (req, res) => {
     }
 });
 
-// POST upload track
-router.post('/upload', auth, async (req, res) => {
-    try {
-        const { name, src, lyrics, cover, duration } = req.body;
-        const candidate = await Song.findOne({ src });
-
-        if (candidate) {
-            return res.status(400).json({ message: 'Такой трек уже существует' })
-        } 
-
-        const artist = await User.findById({ _id: req.user.userId });
-
-        const song = new Song({
-            name,
-            artist_name: artist.name,
-            artist_id: req.user.userId,
-            duration: duration,
-            // album_name: album.name,
-            // album_id,
-            cover: cover,
-            src,
-            lyrics: lyrics
-        })
-
-
-        await song.save()
-
-        // artist.songs.push(song);
-        
-        // await artist.save(); 
-
-        res.status(200).json({ message: "Track is uploaded", track: song })
-
-    }
-    catch (e) {
-        res.status(500).json({ message: `Что-то пошло не так... ${e}` })
-    }
-
-});
-
 // GET my songs
 router.get('/mySongs', auth, async (req, res) => {
     try {

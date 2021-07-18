@@ -25,7 +25,12 @@ router.get('/artist/:id', async (req, res) => {
         if (!artist) {
             return res.json(404).json({ message: 'Не найдено' })
         }
-        res.json(artist);
+        const {avatar, email, name, songs, albums, _id, followers, listenings} = artist;
+
+        const newArtist = { 
+            avatar, email, name, songs, albums, _id, followers, listenings
+        };
+        res.json(newArtist);
     }
     catch (e) {
         res.status(500).json({ message: 'Что-то пошло не так...' });
