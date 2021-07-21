@@ -17,7 +17,7 @@ app.use((req, res, next) => {
     next();
 });
 
-// app.use(cors(corsOptions))
+app.use(cors())
 
 
 app.use('/api/auth', require('./routes/auth.routes'));
