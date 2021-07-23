@@ -25,7 +25,9 @@ router.get('/artist/:id', async (req, res) => {
         if (!artist) {
             return res.json(404).json({ message: 'Не найдено' })
         }
-        const {avatar, email, name, songs, albums, _id, followers, listenings} = artist;
+        const {avatar, email, name, albums, _id, followers, listenings} = artist;
+        
+        const songs = await Song.find({ artist_id: artist._id });
 
         const newArtist = { 
             avatar, email, name, songs, albums, _id, followers, listenings
@@ -44,13 +46,7 @@ router.get('/profile', auth, async (req, res) => {
         const me = await User.findOne({ _id: req.user.userId});
 
         if (me) {
-            me.saved_songs.map(async (item) => {
-                const songs = await Song.find({ _id: item })
-                me.saved_songs = songs;
-                res.status(200).send(me);
-                return item;
-            })
-            // let profile = Object.assign(me._doc, { avatar });
+            res.status(200).json(me);
         }
     }
     catch (e) {

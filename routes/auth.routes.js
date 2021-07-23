@@ -34,7 +34,7 @@ router.post('/register',
         
         await user.save();
 
-        res.status(201).json({ name: name, email: email, message: 'Пользователь создан' });
+        res.status(201).json({ name, email, message: 'Пользователь создан' });
     }
     catch (e) {
         res.status(500).json({ message: `Что-то пошло не так...${e}` });
