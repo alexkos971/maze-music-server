@@ -2,7 +2,6 @@ const { Router } = require("express");
 
 const Song = require('../models/Song');
 const User = require('../models/User');
-const Album = require('../models/Album');
 
 const auth = require('../middleware/auth.middleware');
 
@@ -56,7 +55,7 @@ router.delete('/delete/:id', auth, async (req, res) => {
 // GET my songs
 router.get('/mySongs', auth, async (req, res) => {
     try {
-        const songs = await Song.find({ artist_id: req.user.userId });
+        const songs = await Song.find({ artist_id: req.user.userId, type: 'Single track' });
         if (songs) {
             res.status(200).json(songs)
         }
