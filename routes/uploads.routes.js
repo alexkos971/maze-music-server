@@ -5,6 +5,7 @@ const { getAudioDurationInSeconds } = require('get-audio-duration');
 const Song = require('../models/Song');
 const User = require('../models/User');
 const Album = require('../models/Album');
+const fs = require('fs'); 
 
 const multer = require('multer');
 
@@ -31,10 +32,13 @@ let getDuration = (track) => {
 const storage = multer.diskStorage({
     destination: (req, file, cb) => {
         if (file.fieldname == 'track') {
-            cb(null, './static/tracks')
+            cb(null, './static/tracks');
         }
         else if (file.fieldname == 'cover') {
-            cb(null, './static/covers')
+            cb(null, './static/covers');
+        }
+        else if (file.fieldname == 'avatar') {
+            cb(null, './static/avatars');
         }
     },
     filename: (req, file, cb) => {
@@ -76,6 +80,15 @@ router.post('/album', upload.fields([
         let cover = req.files.cover[0];
         let tracksId = [];
 
+        const album = new Album({
+           name,
+           type,
+           cover: cover.path,
+           songs: [],
+           artist_name: artist.name,
+           artist_id: artist._id 
+        })
+
         await tracks.forEach(async item => {
             const song = await new Song({
                 name: item.originalname.substring(0, item.originalname.length - 4),
@@ -84,6 +97,7 @@ router.post('/album', upload.fields([
                 artist_name: artist.name,
                 artist_id: req.user.userId,
                 album_name: name,
+                album_id: album._id,
                 src: item.path,
                 genre, 
                 duration: getDuration(item.path),
@@ -91,20 +105,11 @@ router.post('/album', upload.fields([
                 lyrics
             });
 
-            tracksId.push(song._id);
+            album.songs.push(song._id);
             await song.save()
         });
 
-        const album = new Album ({
-            type,
-            name: name,
-            cover: cover.path,
-            artist_name: artist.name,
-            artist_id: artist._id,
-            songs: tracksId
-        })
-        await album.save()
-        console.log(tracks);
+        await album.save();
         res.status(200).json({ message: 'ok', album })
     }
     catch (e) {
@@ -146,6 +151,7 @@ router.post('/track', upload.fields([
                 return '0:00'
             }
         });
+        console.log(genre)
 
         const song = new Song({
             name: track.originalname.substring(0, track.originalname.length - 4),
@@ -169,5 +175,29 @@ router.post('/track', upload.fields([
     }
 
 });
+
+// change avatar
+router.post('/avatar', upload.single('avatar'), auth, async (req, res) => {
+    try {
+        const user = await User.findById(req.user.userId);
+
+        if (user.avatar && user.avatar.length > 0) {
+            return fs.unlink(user.avatar, async () => {
+                user.avatar = req.file.path;
+                await user.save();
+                res.status(200).json({ message: "Avatar is updates", avatar: req.file.path})
+            })
+        }
+        user.avatar = req.file.path;
+        await user.save();
+        console.log(user)
+        
+        res.status(200).json({ message: "Avatar is updates", avatar: req.file.path})
+        
+    }
+    catch (e) {
+        res.status(500).json({ message: 'Что-то пошло не так...' })
+    }
+})
 
 module.exports = router;

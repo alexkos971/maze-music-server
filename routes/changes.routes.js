@@ -1,31 +1,11 @@
 const { Router } = require('express');
 const router = Router();
 
-const multer  = require('multer')
-const upload = multer({ dest: 'uploads/' })
 
 const User = require('../models/User');
 const Song = require('../models/Song');
 
 const auth = require('../middleware/auth.middleware');
-
-// change avatar
-router.post('/avatar', upload.single('avatar'), auth, async (req, res) => {
-    try {
-        let user = await User.findById(req.user.userId)
-        const {avatar} = req.files[0]
-        
-        user.avatar = req.body.avatar;
-        
-        await user.save();
-        
-        res.status(200).json({ message: "Avatar is updates", avatar: user.avatar})
-        
-    }
-    catch (e) {
-        res.status(500).json({ message: 'Что-то пошло не так...' })
-    }
-})
 
 // change name
 router.post('/name', auth, async (req, res) => {
