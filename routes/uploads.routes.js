@@ -18,16 +18,6 @@ const timeTemplate = s => {
     return (s - (s %= 60)) / 60 + (10 < s ? ':' : ':0') + ~~(s);
 }
 
-let getDuration = (track) => {
-    getAudioDurationInSeconds(track).then((dur) => {
-        if (dur) {
-            return timeTemplate(dur)
-        }
-        else {
-            return '0:00'
-        }
-    });
-}
 
 const storage = multer.diskStorage({
     destination: (req, file, cb) => {
@@ -80,11 +70,25 @@ router.post('/album', upload.fields([
         let cover = req.files.cover[0];
         let tracksId = [];
 
+        console.log(genre)
+
+        let getDuration = (track) => {
+            getAudioDurationInSeconds(track).then((dur) => {
+                if (dur) {
+                    return timeTemplate(dur)
+                }
+                else {
+                    return '0:00'
+                }
+            });
+        }
+
         const album = new Album({
            name,
            type,
            cover: cover.path,
            songs: [],
+           genre: genre,
            artist_name: artist.name,
            artist_id: artist._id 
         })
@@ -92,14 +96,14 @@ router.post('/album', upload.fields([
         await tracks.forEach(async item => {
             const song = await new Song({
                 name: item.originalname.substring(0, item.originalname.length - 4),
-                type,
+                type: type,
                 cover: cover.path,
                 artist_name: artist.name,
                 artist_id: req.user.userId,
                 album_name: name,
                 album_id: album._id,
                 src: item.path,
-                genre, 
+                genre: genre, 
                 duration: getDuration(item.path),
                 filename: item.filename,
                 lyrics

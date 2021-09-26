@@ -21,20 +21,18 @@ router.get('/recomendation', async (req, res) => {
 // GET saved songs
 router.get('/saved', auth, async (req, res) => {
     try {
-        const user = await User.find({_id: req.user.userId});
-        const songs = [];
+        const user = await User.findById(req.user.userId);
 
-        if (user.saved_songs.length > 0) {
-            await user.saved_songs.forEach(async item => {
-                let song = await Song.findById(item);
-                songs.push(song);
-            })
-            console.log(songs)
-            return res.status(200).json(songs);
+        if (user.saved_songs && user.saved_songs.length > 0) {
+            const songs = await Song.find({ _id: { $in: user.saved_songs } })
+            
+            if (songs) {
+                console.log(songs)
+                return res.status(200).json(songs);
+            }
         }
         else {
-            console.log(songs)
-            return res.status(404)({json: 'Нет сохраненныйх песен'})
+            return res.status(404).json({message: 'Нет сохраненныйх песен'})
         }
     }
     catch (e) {
@@ -44,23 +42,30 @@ router.get('/saved', auth, async (req, res) => {
 
 
 // POST save songs
-router.post('/save/:id', auth, async (req, res) => {
+router.put('/save/:id', auth, async (req, res) => {
     try {
         let song = await Song.findById(req.params.id);
         const user = await User.findById(req.user.userId);
 
-        const check = await user.saved_songs.some(item => item._id === req.params.id);
+        if (user.saved_songs && user.saved_songs.length > 0) {
+            const check = await user.saved_songs.some(item => item._id === req.params.id);
 
-        if (!check) {
+            if (!check) {
+                user.saved_songs.push(song);
+                await user.save();
+                return res.status(200).json({ message: 'saved'});
+            }
+            else {
+                const newSaved = await user.saved_songs.filter(item => item._id !== req.params.id);
+                user.saved_songs = newSaved;
+                await user.save();
+                return res.status(200).json({ message: 'unsaved' });
+            }
+        }
+        else {
             user.saved_songs.push(song);
             await user.save();
             return res.status(200).json({ message: 'saved'});
-        }
-        else {
-            const newSaved = await user.saved_songs.filter(item => item._id !== req.params.id);
-            user.saved_songs = newSaved;
-            await user.save();
-            return res.status(200).json({ message: 'unsaved' });
         }
 
     }

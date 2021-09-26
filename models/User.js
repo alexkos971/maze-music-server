@@ -8,6 +8,15 @@ let shema = new Schema({
     avatar: {type: String, default: 'https://i.mycdn.me/i?r=AyH4iRPQ2q0otWIFepML2LxR21EoY7T_GZpDBwrrF3W6uw'},
     listenings: { type: Number, default: 0 },
     followers: [{ type: Number, default: 0 }],
+
+    // genres: [{
+    //     {
+    //         name: {type: String},
+    //         _id: { type: Types.ObjectId }
+    //     }
+    // }],
+
+    description: { type: String, default: 'There is no information about this artist' },
     
     saved_songs: [{ type: Types.ObjectId, ref: 'Song'}],
     saved_artists: [{ type: Types.ObjectId, ref: 'User'}],

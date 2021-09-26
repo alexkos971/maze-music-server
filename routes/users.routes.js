@@ -26,12 +26,12 @@ router.get('/artist/:id', async (req, res) => {
         if (!artist) {
             return res.json(404).json({ message: 'Не найдено' })
         }
-        const {avatar, email, name, albums, _id, followers, listenings} = artist;
+        const {avatar, email, name, albums, _id, followers, listenings, description} = artist;
         
         const songs = await Song.find({ artist_id: artist._id });
 
         const newArtist = { 
-            avatar, email, name, songs, albums, _id, followers, listenings
+            avatar, email, name, songs, albums, _id, followers, listenings, description
         };
         res.json(newArtist);
     }
@@ -47,20 +47,27 @@ router.get('/profile', auth, async (req, res) => {
         const me = await User.findOne({ _id: req.user.userId});
 
         if (me) {
+            me.description_large = me.description.substr(0, 130) + '...';
+            me.password = null;
+
             const songs = await Song.find({ artist_id: me._id, type: 'Single track' });
-            const albums = await Album.find({ artist_id: me._id })
             
             if (songs) {
                 me.songs = songs;
             }
+
+            const albums = await Album.find({ artist_id: me._id }) 
+
             if (albums) {
                 me.albums = albums;
             }
-            return res.status(200).json(me);
 
-            // else {
-                // res.status(200).json({...me, songs: false})
-            // }
+            if (me.saved_songs && me.saved_songs.length > 0) {             
+                const saved = await Song.find({ _id: { $in: me.saved_songs } })
+                me.saved_songs = saved;
+            }
+
+            return res.status(200).json(me);
         }
     }
     catch (e) {

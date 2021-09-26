@@ -4,6 +4,7 @@ let shema = new Schema({
     name: { type: String, required: true },
     type: {type: String, required: true},
     cover: { type: String, required: true },
+    genre: [{type: String, required: true}],
     artist_name: { type: String, required: true },
     artist_id: { type: Types.ObjectId, ref: 'User', required: true },
     songs: [{ type: Array, ref: 'Song', required: true }],
