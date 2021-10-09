@@ -23,11 +23,11 @@ router.post('/register',
 
         const candidate = await User.findOne({ email });
         if (candidate) {
-            return res.status(400).json({ message: 'Такой пользователь уже существует' });
+            return res.status(200).json({ message: 'Такой пользователь уже существует' });
         }
 
         if (!name.length) {
-            return res.status(400).json({ message: "Укажите имя" });
+            return res.status(200).json({ message: "Укажите имя" });
         }
         const hashedPassword = await bcrypt.hash(password, 12);
         const user = new User({ email, password: hashedPassword, name });
@@ -51,7 +51,7 @@ router.post('/login', cors(),
     try {
         const errors = validationResult(req);
         if (!errors.isEmpty()) {
-            return res.status(400).json({
+            return res.status(200).json({
                 message: 'Некорректные данные при регистрации',
                 errors: errors.array() 
             });
@@ -61,12 +61,12 @@ router.post('/login', cors(),
         
         const user = await User.findOne({ email });
         if (!user) {
-            return res.status(400).json({ message: 'Пользователь не найден...' });
+            return res.status(200).json({ message: 'Пользователь не найден...' });
         }
         
         const isMatch = await bcrypt.compare(password, user.password);
         if (!isMatch) {
-            return res.status(400).json({ message: 'Неверный пароль' });
+            return res.status(200).json({ message: 'Неверный пароль' });
         }
         
         const token = jwt.sign(
@@ -74,7 +74,7 @@ router.post('/login', cors(),
             config.get('jwtKey'),
             {});
         
-        res.status(200).json({ email, token, userId: user.id })
+        res.status(200).json({ email, token, userId: user.id, isSuccess: true, message: 'Авторизован' })
     }
     catch (e) {
         res.status(500).json({ message: 'Что-то пошло не так...' });
