@@ -34,7 +34,7 @@ router.post('/register',
         
         await user.save();
 
-        res.status(201).json({ name, email, message: 'Пользователь создан' });
+        res.status(201).json({ name, email, message: 'Пользователь создан', isSuccess: true });
     }
     catch (e) {
         res.status(500).json({ message: `Что-то пошло не так...${e}` });
@@ -52,7 +52,7 @@ router.post('/login', cors(),
         const errors = validationResult(req);
         if (!errors.isEmpty()) {
             return res.status(200).json({
-                message: 'Некорректные данные при регистрации',
+                message: 'Некорректные данные при входе',
                 errors: errors.array() 
             });
         }
@@ -65,6 +65,7 @@ router.post('/login', cors(),
         }
         
         const isMatch = await bcrypt.compare(password, user.password);
+
         if (!isMatch) {
             return res.status(200).json({ message: 'Неверный пароль' });
         }
@@ -88,7 +89,7 @@ router.post('/checkEmail', async (req, res) => {
 
         const check = await User.findOne({ email })
         if (check) {
-            res.status(200).json({ message: req.body })
+            res.status(200).json({ message: req.body, isSuccess: true })
 
         }
         res.status(404).json({ message: 'Пользователь не найден' })

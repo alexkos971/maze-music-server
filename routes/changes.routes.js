@@ -23,11 +23,11 @@ router.post('/name', auth, async (req, res) => {
         
             // await songs.save();
             
-        res.status(200).json({ message: "Name is updates", name: user.name})
+        res.status(200).json({ message: "Name is updates", name: user.name, isSuccess: true})
 
     }
     catch (e) {
-        res.status(500).json({ message: 'Что-то пошло не так...' })
+        res.status(500).json({ message: 'Что-то пошло не так...', isSuccess: false })
         console.log(e.message);
     }
 });
@@ -40,10 +40,10 @@ router.post('/description', auth, async (req, res) => {
         user.description_large = req.body.description.substr(0, 130) + '...';
         await user.save();
             
-        res.status(200).json({ message: "Description is updates", description: user.description, description_large: user.description_large})
+        res.status(200).json({ message: "Description is updates", isSuccess: true, description: user.description, description_large: user.description_large})
     }
     catch (e) {
-        res.status(500).json({ message: 'Что-то пошло не так...' })
+        res.status(500).json({ message: 'Что-то пошло не так...', isSuccess: false })
     }
 })
 

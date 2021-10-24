@@ -7,11 +7,11 @@
     "start": "node app.js",
     "server": "nodemon app.js",
     "client": "npm run start --prefix ../client",
-    "dev": "concurrently \"npm run server\" \"npm run client\""
+    "dev": "npm run server & npm run client"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/alexkos971/maze-music.git"
+    "url": "git+https://github.com/alexkos971/maze-music-server.git"
   },
   "keywords": [
     "mern",

@@ -47,7 +47,6 @@ router.get('/profile', auth, async (req, res) => {
         const me = await User.findOne({ _id: req.user.userId});
 
         if (me) {
-            me.description_large = me.description.substr(0, 130) + '...';
             me.password = null;
 
             const songs = await Song.find({ artist_id: me._id, type: 'Single track' });
