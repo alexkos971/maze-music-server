@@ -2,6 +2,7 @@ const { Router } = require("express");
 
 const Song = require('../models/Song');
 const User = require('../models/User');
+const fs = require('fs');
 
 const auth = require('../middleware/auth.middleware');
 
@@ -41,13 +42,13 @@ router.get('/saved', auth, async (req, res) => {
 })
 
 
-// POST save songs
+// POST save song
 router.put('/save/:id', auth, async (req, res) => {
     try {
         let song = await Song.findById(req.params.id);
         const user = await User.findById(req.user.userId);
 
-        if (user.saved_songs && user.saved_songs.length > 0) {
+        if (user.saved_songs?.length > 0) {
             const check = await user.saved_songs.some(item => item._id === req.params.id);
 
             if (!check) {
@@ -70,7 +71,7 @@ router.put('/save/:id', auth, async (req, res) => {
 
     }
     catch (e) {
-        res.status(500).json({ message: 'Что-то пошло не так...' });
+        res.status(500).json({ message: 'Что-то пошло не так...', isSuccess: true });
     }
 })
 
@@ -78,11 +79,24 @@ router.put('/save/:id', auth, async (req, res) => {
 // POST delete songs
 router.delete('/delete/:id', auth, async (req, res) => {
     try {
-        let song = await Song.findOneAndDelete({ _id: req.params.id}, (err, obj) => {
+        return await Song.findOneAndDelete({ _id: req.params.id}, async (err, song) => {
             if (err) {
-                return res.status(500).json({ message: "Трек не найден" })
+                return res.status(500).json({ message: "Не удалось удалить трек", isSuccess: false })
             }
-            return res.status(200).json({ message: 'Удален 1 трек'})
+
+            await fs.unlink(song.cover, (err, cover) => {
+                if (err) {
+                    return res.status(500).json({ message: `Не удалось удалить обложку - ${err}`, isSuccess: false });
+                }
+                
+            })
+            
+            await fs.unlink(song.src, (err, song) => {
+                if (err) {
+                    return res.status(500).json({ message: `Не удалось удалить трек - ${err}`, isSuccess: false });
+                }
+            });
+            return res.status(200).json({ message: 'Удален 1 трек', isSuccess: true, song: song._id})
         });
         
     }

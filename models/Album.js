@@ -7,7 +7,7 @@ let shema = new Schema({
     genre: [{type: String, required: true}],
     artist_name: { type: String, required: true },
     artist_id: { type: Types.ObjectId, ref: 'User', required: true },
-    songs: [{ type: Array, ref: 'Song', required: true }],
+    songs: { type: Array, ref: 'Song', required: true },
     listenings: { type: Number, default: 0 },
     date: {type: Date, default: Date.now()}
 })

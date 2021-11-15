@@ -47,10 +47,6 @@ const fileFilter = (req, file, cb) => {
   
 let upload = multer({ storage });
 
-// router.post('/cover', (req, res) => {
-//     res.status(200).json({ message: 'uploaded' })
-// })
-
 
 // Post upload album 
 router.post('/album', upload.fields([
@@ -68,17 +64,14 @@ router.post('/album', upload.fields([
     
         let tracks = req.files.track;
         let cover = req.files.cover[0];
-        let tracksId = [];
-
-        console.log(genre)
 
         let getDuration = (track) => {
             getAudioDurationInSeconds(track).then((dur) => {
                 if (dur) {
-                    return timeTemplate(dur)
+                    return timeTemplate(dur);
                 }
                 else {
-                    return '0:00'
+                    return '0:00';
                 }
             });
         }
@@ -104,17 +97,18 @@ router.post('/album', upload.fields([
                 album_id: album._id,
                 src: item.path,
                 genre: genre, 
-                duration: getDuration(item.path),
+                duration: await getDuration(item.path),
                 filename: item.filename,
                 lyrics
             });
-
-            album.songs.push(song._id);
+            
+            album.songs = [...album.songs, song._id];
             await song.save()
         });
+        console.log(album, ' push tracks ')
 
         await album.save();
-        res.status(200).json({ message: 'ok', album })
+        res.status(200).json({ message: 'Альбом загружен', album, isSuccess: true })
     }
     catch (e) {
         res.status(500).json({ message: `Error - ${e}` })
@@ -139,13 +133,11 @@ router.post('/track', upload.fields([
         const isExist = await Song.findOne({ name, artist_id: req.user.userId }); 
 
         if (isExist) {
-            return res.status(400).json({ message: 'Такой трек у вас уже есть' })
+            return res.status(200).json({ message: 'Такой трек у вас уже есть', isSuccess: false })
         }
 
         let track = req.files.track[0];
         let cover = req.files.cover[0];
-        
-            
 
         let duration = await getAudioDurationInSeconds(track.path).then((dur) => {
             if (dur) {
@@ -155,7 +147,6 @@ router.post('/track', upload.fields([
                 return '0:00'
             }
         });
-        console.log(genre)
 
         const song = new Song({
             name: track.originalname.substring(0, track.originalname.length - 4),
@@ -169,13 +160,11 @@ router.post('/track', upload.fields([
             filename: track.filename,
             lyrics
         })
-
-        console.log(song)
-        await song.save()
-        res.status(200).json({ message: "Track is uploaded", track: song })        
+        await song.save();
+        res.status(200).json({ message: "Track is uploaded", track: song, isSuccess: true })        
     }
     catch (e) {
-        res.status(500).json({ message: `Что-то пошло не так... ${e}` })
+        res.status(500).json({ message: `Что-то пошло не так... ${e}`, isSuccess: false })
     }
 
 });
@@ -185,18 +174,19 @@ router.post('/avatar', upload.single('avatar'), auth, async (req, res) => {
     try {
         const user = await User.findById(req.user.userId);
 
-        if (user.avatar && user.avatar.length > 0) {
-            return fs.unlink(user.avatar, async () => {
-                user.avatar = req.file.path;
-                await user.save();
-                res.status(200).json({ message: "Avatar is updates", avatar: req.file.path})
+        if (user.avatar) {
+            console.log(user.avatar)
+            await fs.unlink(user.avatar, (err, avatar) => {
+                if (err) {
+                    return res.status(200).json({ message: "Avatar not updated", isSuccess: false});
+                }
             })
         }
+
         user.avatar = req.file.path;
         await user.save();
-        console.log(user)
         
-        res.status(200).json({ message: "Avatar is updates", avatar: req.file.path})
+        res.status(200).json({ message: "Avatar is updated", avatar: req.file.path, isSuccess: true})
         
     }
     catch (e) {

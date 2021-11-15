@@ -38,32 +38,28 @@ router.post('/save/:id', auth, async (req, res) => {
 })
 
 
-// 44 tracks
-// 23 covers
+// 4 tracks
+// 4 covers
 
 // POST delete album
 router.delete('/delete/:id', auth, async (req, res) => {
     try {
-        await Album.findByIdAndDelete(req.params.id, async (err, album) => {
+        await Album.findOneAndDelete({ _id: req.params.id}, async (err, album) => {
             if (err) {
-                console.log(err);
                 return res.status(500).json({message: `Не удалось удалить альбом ${err}`})
             }
 
             await fs.unlink(album.cover, (err, cover) => {
                 if (err) {
-                    console.log(err)
-                    return res.status(500).json({ message: `Не удалось удалить обложку - ${err}` });
+                    return res.status(500).json({ message: `Не удалось удалить обложку - ${err}`, isSuccess: false });
                 }
-                console.log('Обложка удаленна')
 
             })
 
             await album.songs.forEach(async item => {
                 await Song.findByIdAndRemove(item, (err, song) => {
                     if (err) {
-                        console.log(err);
-                        return res.status(500).json({message: `Не удалось удалить песню - ${err}`})
+                        return res.status(500).json({message: `Не удалось удалить песню - ${err}`, isSuccess: false})
                     }
 
                     return fs.unlink(song.src, () => {
@@ -71,7 +67,7 @@ router.delete('/delete/:id', auth, async (req, res) => {
                     })
                 });
             })
-            return res.status(200).json({ message: 'Удален 1 альбом'})
+            return res.status(200).json({ message: 'Удален 1 альбом', isSuccess: true})
 
         });
     }
@@ -103,14 +99,14 @@ router.get('/myAlbums', auth, async (req, res) => {
 // Get songs of album
 router.get('/album/:id', async (req, res) => {
     try {
-        // const album = await Album.findById(req.params.id);
+        const album = await Album.findById(req.params.id);
         const songs = await Song.find({ album_id: req.params.id })
 
         if (songs) {
             // const newAlbum = {...album, songs: songs}
             // album.songs = songs
-        // console.log(newAlbum)
-            return res.status(200).json(songs)
+            album.songs = songs;
+            return res.status(200).json({album, isSuccess: true})
         }
         else {
             return res.status(404).json({ message: "404 not found" });

@@ -1,5 +1,6 @@
 {
-    "mongoUrl": "mongodb+srv://alexkos:1234qwer@cluster0.ewrgz.azure.mongodb.net/app?retryWrites=true&w=majority",
-    "port": "5050",
-    "jwtKey": "alexkey"
+    "mongoUrl": "mongodb+srv://alexkos:Tf7SNtGGX94Gv2xa@cluster0.ewrgz.azure.mongodb.net/app?retryWrites=true&w=majority",
+    "port": "5000",
+    "jwtKey": "alexkey",
+    "env": "DEV"
 }
