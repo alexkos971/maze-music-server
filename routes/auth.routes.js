@@ -2,7 +2,6 @@ const {Router} = require('express');
 const router = Router();
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
-const config = require('config');
 const { check, validationResult } = require('express-validator');
 // import Email from 'email-templates';
 const User = require('../models/User');
@@ -72,7 +71,7 @@ router.post('/login', cors(),
         
         const token = jwt.sign(
             {userId: user.id},
-            config.get('jwtKey'),
+            process.env.NODE_APP_JWT_KEY,
             {});
         
         res.status(200).json({ email, token, userId: user.id, isSuccess: true, message: 'Авторизован' })

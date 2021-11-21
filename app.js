@@ -1,7 +1,8 @@
 const express = require("express");
 const mongoose = require('mongoose');
-const config = require('config');
 let cors = require('cors')
+
+require('dotenv').config();
 
 const app = express();
 
@@ -20,7 +21,6 @@ app.use((req, res, next) => {
 
 app.use(cors())
 app.use('/static', express.static('static'));
-// app.use(express.static('../static'));
 
 app.use('/api/auth', require('./routes/auth.routes'));
 app.use('/api/users', require('./routes/users.routes'));
@@ -33,16 +33,16 @@ app.get('/', (req, res) => {
     res.end(`<h1>Now path ${req.path}</h1>`)
 })
 
-const PORT = process.env.PORT || config.get("port") || 5050;
+const PORT = process.env.PORT || process.env.NODE_APP_PORT || 5050;
 
 const start = async () => {
     try {
-        await mongoose.connect(config.get('mongoUrl'), {
+        await mongoose.connect(process.env.NODE_APP_MONGO_URI, {
             useNewUrlParser: true,
             useUnifiedTopology: true,
             useCreateIndex: true
         });
-        app.listen(PORT, () => console.log('server started on port: ', PORT));
+        app.listen(process.env.NODE_APP_PORT, () => console.log('server started on port: ', PORT));
     }
     catch (e) { 
         console.log(e.message);

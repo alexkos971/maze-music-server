@@ -1,5 +1,4 @@
 const jwt = require('jsonwebtoken');
-const config = require('config');
 
 module.exports = async (req, res, next) => {
     if (req.method === 'OPTIONS') {
@@ -12,7 +11,7 @@ module.exports = async (req, res, next) => {
             return res.status(401).json({ message: 'Нет авторизации' });
         }
         
-        const decoded = jwt.verify(token, config.get('jwtKey'));
+        const decoded = jwt.verify(token, process.env.NODE_APP_JWT_KEY);
         req.user = decoded;
         next();
     }
