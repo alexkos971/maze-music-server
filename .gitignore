@@ -2,5 +2,6 @@
 .idea
 /static
 /uploads
+.env
 
 /config/default.json
