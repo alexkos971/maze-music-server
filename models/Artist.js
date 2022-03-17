@@ -6,6 +6,7 @@ const schema = new Schema({
     listenings: {type: Number, required: true},
     albums: {type: Number, required: true},
     img: {type: String, required: true},
+    tags: [{type: String, default: ''}],
     songs: [{ type: Types.ObjectId, required: true}],
     owner: [{type: Types.ObjectId, required: true}]
 })

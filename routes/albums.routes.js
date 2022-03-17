@@ -35,7 +35,7 @@ router.post('/save/:id', auth, async (req, res) => {
     catch (e) {
         res.status(500).json({ message: 'Что-то пошло не так...' });
     }
-})
+});
 
 
 // 4 tracks
