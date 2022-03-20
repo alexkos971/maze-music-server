@@ -13,9 +13,9 @@ Link on full [Template on Figma](https://www.figma.com/file/i8nhb8taUlfWvvyW6Hca
   (Points highlighted by ***bold italic*** have not started yet)
   
 + MERN
-  + MobgoDB
+  + MongoDB
   + Express
-  + React (Hooks, Router, *Redux*);
+  + React (Hooks, Router, Redux, Redux-thunk);
   + NodeJS
 + WebPack
 + SASS
