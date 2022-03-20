@@ -45,51 +45,28 @@ router.get('/saved', auth, async (req, res) => {
 // POST save song
 router.put('/save/:id', auth, async (req, res) => {
     try {
-        const user = await User.findById(req.user.userId);
         const isSaved = req.body.isSaved;
 
-        console.log(isSaved)
         if (isSaved) {
-            console.log(user.saved_songs.length, ' --- ', req.params.id);
-            let newSaved =  await user.saved_songs.filter(item => item !== req.params.id);
-            user.saved_songs = newSaved;
+            await User.findOneAndUpdate({_id: req.user.userId}, {
+                $pull: {
+                    saved_songs: req.params.id
+                }
+            });
         }
         else {
-            await user.saved_songs.push(req.params.id);       
+            await User.findOneAndUpdate({_id: req.user.userId}, {
+                $push: {
+                    saved_songs: req.params.id
+                }
+            });
         }
-
-        
-        await user.save();
-        
-        console.log(user.saved_songs.length)
         
         return res.status(200).json({
             message: isSaved ? 'unsaved' : 'saved',
             isSuccess: true,
             song: req.params.id
         });
-
-        // if (user.saved_songs?.length > 0) {
-        //     const check = await user.saved_songs.some(item => item._id === req.params.id);
-
-        //     if (!check) {
-        //         user.saved_songs.push(song);
-        //         await user.save();
-        //         return res.status(200).json({ message: 'saved', isSuccess: true});
-        //     }
-        //     else {
-        //         const newSaved = await user.saved_songs.filter(item => item._id !== req.params.id);
-        //         user.saved_songs = newSaved;
-        //         await user.save();
-        //         return res.status(200).json({ message: 'unsaved', isSuccess: true });
-        //     }
-        // }
-        // else {
-        //     user.saved_songs.push(song);
-        //     await user.save();
-        //     return res.status(200).json({ message: 'saved', isSuccess: true});
-        // }
-
     }
     catch (e) {
         res.status(500).json({ message: 'Что-то пошло не так...', isSuccess: false });
