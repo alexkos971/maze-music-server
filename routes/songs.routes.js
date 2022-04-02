@@ -11,7 +11,7 @@ const router = Router();
 // GET Songs for you
 router.get('/recomendation', async (req, res) => {
     try {
-        const songs = await Song.find({ type: 'Single track' });
+        const songs = await Song.find();
         res.json(songs);
     }
     catch (e) {
@@ -94,6 +94,13 @@ router.delete('/delete/:id', auth, async (req, res) => {
                     return res.status(500).json({ message: `Не удалось удалить трек - ${err}`, isSuccess: false });
                 }
             });
+
+            await User.updateMany({saved_songs: { $all: [req.params.id] }}, {
+                $pull: {
+                   saved_songs: req.params.id
+                } 
+            });
+
             return res.status(200).json({ message: 'Удален 1 трек', isSuccess: true, song: song._id})
         });
         
@@ -106,7 +113,7 @@ router.delete('/delete/:id', auth, async (req, res) => {
 // GET my songs
 router.get('/mySongs', auth, async (req, res) => {
     try {
-        const songs = await Song.find({ artist_id: req.user.userId, type: 'Single track' });
+        const songs = await Song.find({ artist_id: req.user.userId, type: 'single' });
         if (songs) {
             res.status(200).json(songs)
         }

@@ -1,3 +1,8 @@
 {
-    "env": "DEV"
+    "env": "DEV",
+    "files": {
+        "cover": "./static/covers",
+        "track": "./static/tracks",
+        "avatar": "./static/avatars"
+    }
 }

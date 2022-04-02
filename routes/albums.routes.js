@@ -1,5 +1,6 @@
 const { Router } = require("express");
 const fs = require('fs');
+const path = require('path');
 
 const Song = require('../models/Song');
 const User = require('../models/User');
@@ -38,38 +39,52 @@ router.post('/save/:id', auth, async (req, res) => {
 });
 
 
-// 4 tracks
-// 4 covers
-
 // POST delete album
 router.delete('/delete/:id', auth, async (req, res) => {
     try {
-        await Album.findOneAndDelete({ _id: req.params.id}, async (err, album) => {
-            if (err) {
-                return res.status(500).json({message: `Не удалось удалить альбом ${err}`})
-            }
+        const album = await Album.findById(req.params.id);
 
+        if (!album) {
+            return res.status(200).json({message: `Альбом не найден`, error: err, isSuccess: false});
+        }
+
+        const albumSongs = await Song.find({album_id : album._id }, {
+            _id: 1,
+            src: 1
+        });
+
+        album.songs = albumSongs;
+        
+        if (album.cover && fs.existsSync(path.resolve(album.cover))) {
             await fs.unlink(album.cover, (err, cover) => {
                 if (err) {
-                    return res.status(500).json({ message: `Не удалось удалить обложку - ${err}`, isSuccess: false });
+                    return res.status(500).json({ message: `Не удалось удалить обложку - ${cover}`, error: err, isSuccess: false });
                 }
+            });
+        }
 
-            })
-
-            await album.songs.forEach(async item => {
-                await Song.findByIdAndRemove(item, (err, song) => {
-                    if (err) {
-                        return res.status(500).json({message: `Не удалось удалить песню - ${err}`, isSuccess: false})
-                    }
-
-                    return fs.unlink(song.src, () => {
-                        console.log('deleted song - ', song)
-                    })
-                });
-            })
-            return res.status(200).json({ message: 'Удален 1 альбом', isSuccess: true})
-
+        await album.songs.forEach(async (item) => {
+            fs.unlink(item.src, (err) => {
+                if (err) {
+                    console.log(err);
+                    return res.status(200).json({message: `Не удалось удалить файл - ${item.src}`, isSuccess: false, error: err});
+                }
+            });
         });
+
+        await album.songs.forEach(async item => {
+            await User.updateMany({saved_songs: { $all: [item._id] }}, {
+                $pull: {
+                   saved_songs: item._id
+                } 
+            });
+        })
+
+        await Song.deleteMany({album_id: album._id});
+
+        await album.delete();
+
+        return res.status(200).json({ message: 'Удален 1 альбом', isSuccess: true})
     }
     catch (e) {
         res.status(500).json({ message: 'Что-то пошло не так...' });
@@ -103,8 +118,6 @@ router.get('/album/:id', async (req, res) => {
         const songs = await Song.find({ album_id: req.params.id })
 
         if (songs) {
-            // const newAlbum = {...album, songs: songs}
-            // album.songs = songs
             album.songs = songs;
             return res.status(200).json({album, isSuccess: true})
         }

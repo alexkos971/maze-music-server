@@ -2,6 +2,8 @@ const { Router } = require('express');
 const path = require('path')
 const { getAudioDurationInSeconds } = require('get-audio-duration');
 
+const config = require('../config/default.json');
+
 const Song = require('../models/Song');
 const User = require('../models/User');
 const Album = require('../models/Album');
@@ -22,13 +24,13 @@ const timeTemplate = s => {
 const storage = multer.diskStorage({
     destination: (req, file, cb) => {
         if (file.fieldname == 'track') {
-            cb(null, './static/tracks');
+            cb(null, config.files.track);
         }
         else if (file.fieldname == 'cover') {
-            cb(null, './static/covers');
+            cb(null, config.files.cover);
         }
         else if (file.fieldname == 'avatar') {
-            cb(null, './static/avatars');
+            cb(null, config.files.avatar);
         }
     },
     filename: (req, file, cb) => {
@@ -54,8 +56,8 @@ router.post('/album', upload.fields([
         name: 'cover',
         maxCount: 1
     }, {
-        name: 'track',
-        maxCount: 12
+        name: 'track'
+        // maxCount: 12
     }    
     ]), auth, async (req, res) => {
     try {
@@ -103,7 +105,7 @@ router.post('/album', upload.fields([
             });
             
             album.songs = [...album.songs, song._id];
-            await song.save()
+            await song.save();
         });
         console.log(album, ' push tracks ')
 
@@ -147,9 +149,10 @@ router.post('/track', upload.fields([
                 return '0:00'
             }
         });
+ 
 
         const song = new Song({
-            name: track.originalname.substring(0, track.originalname.length - 4),
+            name: name,
             type,
             cover: cover.path,
             artist_name: artist.name,
@@ -175,7 +178,7 @@ router.post('/avatar', upload.single('avatar'), auth, async (req, res) => {
         const user = await User.findById(req.user.userId);
 
         if (user.avatar) {
-            console.log(user.avatar)
+            
             await fs.unlink(user.avatar, (err, avatar) => {
                 if (err) {
                     return res.status(200).json({ message: "Avatar not updated", isSuccess: false});
@@ -195,3 +198,4 @@ router.post('/avatar', upload.single('avatar'), auth, async (req, res) => {
 })
 
 module.exports = router;
+// module.exports = filesPath;

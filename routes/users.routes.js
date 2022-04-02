@@ -10,7 +10,15 @@ const router = Router();
 // GET Artists
 router.get('/artists', async (req, res) => {
     try {
-        const artists = await User.find();
+        const artists = await User.find({}, {
+            name: 1,
+            _id: 1,
+            followers: 1,
+            avatar: 1,
+            listenings: 1,
+            albums: 1
+        });
+
         res.json(artists);
     }
     catch (e) {
@@ -44,29 +52,43 @@ router.get('/artist/:id', async (req, res) => {
 // GET User
 router.get('/profile', auth, async (req, res) => {
     try {
-        const me = await User.findOne({ _id: req.user.userId});
+        let me = await User.findById({ _id: req.user.userId});
 
         if (me) {
             me.password = null;
 
-            const songs = await Song.find({ artist_id: me._id, type: 'Single track' });
-            
-            if (songs) {
-                me.songs = songs;
-            }
-
-            const albums = await Album.find({ artist_id: me._id }) 
+            const albums = await Album.find({ artist_id: req.user.userId }) 
 
             if (albums) {
                 me.albums = albums;
             }
 
             if (me.saved_songs && me.saved_songs.length > 0) {             
-                const saved = await Song.find({ _id: { $in: me.saved_songs } })
+                let saved = await Song.find({ _id: { $in: me.saved_songs } })
+                // await me.saved_songs.map(item => item.saved = true);
                 me.saved_songs = saved;
             }
 
-            return res.status(200).json(me);
+            let songs = await Song.find({ artist_id: me._id });
+        
+            if (songs) {
+                
+                // me.songs = await songs.map(item => {
+                //     if (me.saved_songs && me.saved_songs.length > 0) {
+                //         item.saved = me.saved_songs.some(elem => elem._id === item._id)
+                //     }
+                //     else {
+                //         item.saved = false;
+                //     }
+                //     return item;
+                // });
+
+                me.songs = songs;
+            }
+
+            me.text = true;
+
+            return res.status(200).json({isSuccess: true, profile: me});
         }
     }
     catch (e) {
