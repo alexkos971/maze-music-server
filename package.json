@@ -2,12 +2,10 @@
   "name": "maze-music-server",
   "version": "1.0.0",
   "description": "Music web app",
-  "homepage": "https://alexkos971.github.io/maze-music-server",
   "main": "app.js",
   "scripts": {
     "start": "node app.js",
     "server": "nodemon app.js",
-    "deploy": "gh-pages",
     "dev": "npm run server & npm run client"
   },
   "repository": {
