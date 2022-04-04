@@ -1,7 +1,5 @@
 /node_modules
 .idea
-/static
 /uploads
-/.env
 
 /config/default.json
