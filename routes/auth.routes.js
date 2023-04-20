@@ -77,7 +77,7 @@ router.post('/login', cors(),
         res.status(200).json({ email, token, userId: user.id, isSuccess: true, message: 'Авторизован' })
     }
     catch (e) {
-        res.status(500).json({ message: 'Что-то пошло не так...' });
+        res.status(500).json({ message: 'Что-то пошло не так...', e: e });
     }
 });
 

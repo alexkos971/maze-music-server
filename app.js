@@ -33,7 +33,7 @@ app.get('/', (req, res) => {
     res.end(`<h1>Now path ${req.path}</h1>`)
 })
 
-const PORT = process.env.PORT || process.env.NODE_APP_PORT || 5050;
+const PORT = process.env.PORT || process.env.NODE_APP_PORT || 8889;
 
 const start = async () => {
     try {

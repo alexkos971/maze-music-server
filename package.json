@@ -5,8 +5,8 @@
   "main": "app.js",
   "scripts": {
     "start": "node app.js",
-    "server": "nodemon app.js",
-    "dev": "npm run server & npm run client"
+    "dev": "nodemon app.js",
+    "full": "npm run server & npm run client"
   },
   "repository": {
     "type": "git",
@@ -27,6 +27,7 @@
     "url": "https://github.com/alexkos971/maze-music/issues"
   },
   "dependencies": {
+    "bcrypt-nodejs": "0.0.3",
     "bcryptjs": "^2.4.3",
     "concurrently": "^5.3.0",
     "config": "^3.3.6",
