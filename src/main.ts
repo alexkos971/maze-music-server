@@ -1,8 +1,22 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
+import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 
-async function bootstrap() {
+async function start() {
   const app = await NestFactory.create(AppModule);
-  await app.listen(3000);
+
+  // Init Swagger
+  const config = new DocumentBuilder()
+    .setTitle('Maze Music Server')
+    .setDescription('Private API for maze-music clients')
+    .setVersion('1.0')
+    .addTag('music')
+    .build();
+
+  const document = SwaggerModule.createDocument(app, config);
+  SwaggerModule.setup('/api/docs', app, document);
+
+  const PORT = process.env.PORT || 5000;
+  await app.listen(PORT, () => console.log(`Server started on port = ${PORT}`));
 }
-bootstrap();
+start();
