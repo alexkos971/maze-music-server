@@ -7,7 +7,7 @@ import { Model } from "mongoose";
 @Injectable()
 export class UsersService {
     constructor ( @InjectModel(User.name) private userModel: Model<UserDocument>) {}
-
+    
     async createUser(userDto: CreateUserDto) {
         const newUser = await new this.userModel({
             ...userDto, 

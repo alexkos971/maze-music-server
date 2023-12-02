@@ -1,4 +1,4 @@
-import { Injectable, HttpException, HttpStatus } from "@nestjs/common";
+import { Injectable, HttpException, HttpStatus, UnauthorizedException } from "@nestjs/common";
 import { CreateUserDto } from "../users/dto/create-user.dto";
 import * as bcrypt from "bcrypt";
 import { JwtService } from "@nestjs/jwt/dist";
@@ -12,11 +12,16 @@ export class AuthService {
         private jwtService: JwtService
     ) {}
 
+    async login(dto) {
+        const user = await this.validateUser(dto);
+        return this.generateToken(user); 
+    }
+
     async register(userDto: CreateUserDto) {        
         
-        if ( !userDto.email ) {
-            throw new HttpException('email_is_required', HttpStatus.BAD_REQUEST);
-        }  
+        // if ( !userDto.email ) {
+        //     throw new HttpException('email_is_required', HttpStatus.BAD_REQUEST);
+        // }  
         
         // User is exist
         const candidate = await this.usersService.getUserBy({email: userDto.email});
@@ -24,13 +29,13 @@ export class AuthService {
             throw new HttpException('user_is_exist', HttpStatus.BAD_REQUEST);
         }
 
-        if ( !userDto.password ) {
-            throw new HttpException('passsword_is_required', HttpStatus.BAD_REQUEST);
-        }
+        // if ( !userDto.password ) {
+        //     throw new HttpException('passsword_is_required', HttpStatus.BAD_REQUEST);
+        // }
 
-        if ( !userDto.name ) {
-            throw new HttpException('name_is_required', HttpStatus.BAD_REQUEST);
-        }
+        // if ( !userDto.name ) {
+        //     throw new HttpException('name_is_required', HttpStatus.BAD_REQUEST);
+        // }
 
         const hashedPassword = await bcrypt.hash(userDto.password, 12);
 
@@ -45,5 +50,25 @@ export class AuthService {
         return {
             token: this.jwtService.sign(payload)
         }
+    }
+
+    async validateUser(dto: CreateUserDto) {
+        if (!dto.email || !dto.password) {
+            throw new UnauthorizedException({ statusCode: 401, message: 'Email or password is empty'});
+        }
+
+        const user = await this.usersService.getUserBy({email: dto.email});
+
+        if (!user) {
+            throw new UnauthorizedException({ statusCode: 401, message: 'Email not found'});
+        }
+
+        const isPasswordEquals = await bcrypt.compare(dto.password, user.password);
+        if (!isPasswordEquals) {
+            throw new UnauthorizedException({ statusCode: 401, message: 'Password incorrect' });
+        }
+
+        return user;
+
     }
 }
