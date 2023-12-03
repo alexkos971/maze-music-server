@@ -18,24 +18,11 @@ export class AuthService {
     }
 
     async register(userDto: CreateUserDto) {        
-        
-        // if ( !userDto.email ) {
-        //     throw new HttpException('email_is_required', HttpStatus.BAD_REQUEST);
-        // }  
-        
         // User is exist
         const candidate = await this.usersService.getUserBy({email: userDto.email});
         if (candidate) {
             throw new HttpException('user_is_exist', HttpStatus.BAD_REQUEST);
         }
-
-        // if ( !userDto.password ) {
-        //     throw new HttpException('passsword_is_required', HttpStatus.BAD_REQUEST);
-        // }
-
-        // if ( !userDto.name ) {
-        //     throw new HttpException('name_is_required', HttpStatus.BAD_REQUEST);
-        // }
 
         const hashedPassword = await bcrypt.hash(userDto.password, 12);
 

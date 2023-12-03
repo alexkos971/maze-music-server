@@ -6,6 +6,7 @@ import { UsersModule } from 'src/users/users.module';
 
 @Module({
   imports: [
+    forwardRef(() => UsersModule),
     JwtModule.register({
       secret: process.env.JWT_SECRET || 'secret',
       global: true,
@@ -13,7 +14,6 @@ import { UsersModule } from 'src/users/users.module';
         expiresIn: '24h'
       }
     }),
-    forwardRef(() => UsersModule)
   ],
   exports: [AuthService, JwtModule],
   controllers: [AuthController],

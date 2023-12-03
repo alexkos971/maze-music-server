@@ -10,9 +10,9 @@ export class ValidationPipe implements PipeTransform<any> {
         const errors = await validate(obj);
 
         if (errors.length) {
-            console.log(errors);
+            // console.log(errors);
             let messages = errors.map(err => {
-                return `${err.property}`;
+                return `${err.property} - ${Object.values(err.constraints).join(', ')}`;
             });
 
             throw new ValidationException(messages);

@@ -3,17 +3,18 @@ import { AuthService } from './auth.service';
 import { User } from 'src/users/schemas/user.schema';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { ValidationPipe } from '../pipes/validation.pipe';
+import { CreateUserDto } from 'src/users/dto/create-user.dto';
 
 @ApiTags('Authorization')
 @Controller('/api/auth')
 export class AuthController {
     constructor(private authService: AuthService) {}
 
-    @UsePipes(ValidationPipe)
     @ApiOperation({ summary: 'User registration' })
     @ApiResponse({ status: 200, type: User, description: 'Returns JWT-token'})
     @Post('/register')
-    register( @Body() dto ) {
+    @UsePipes(ValidationPipe)
+    register( @Body() dto: CreateUserDto ) {
         return this.authService.register(dto);
     }
     
