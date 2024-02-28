@@ -10,7 +10,7 @@ import { AuthModule } from './auth/auth.module';
     ConfigModule.forRoot({
       envFilePath: '.env'
     }),
-    MongooseModule.forRoot(`mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASSWORD}@cluster0.ewrgz.azure.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0`),
+    MongooseModule.forRoot(`mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASSWORD}@cluster0.ewrgz.azure.mongodb.net/app?retryWrites=true&w=majority&appName=Cluster0`),
     AuthModule,
     UsersModule,
   ],

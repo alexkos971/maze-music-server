@@ -1,5 +1,6 @@
-import { Controller, Post, Body, UsePipes, Get, Res } from '@nestjs/common';
+import { Controller, Post, Body, UsePipes, Get, Res, UseGuards } from '@nestjs/common';
 import { Response } from "express"
+import { SessionInfo } from './session-info.decorator';
 import { AuthService } from './auth.service';
 import { CookieService } from './cookie.service';
 import { User } from 'src/users/schemas/user.schema';
@@ -9,6 +10,7 @@ import { ValidationPipe } from '../pipes/validation.pipe';
 import { CreateUserDto } from 'src/users/dto/create-user.dto';
 import { SignInUserDto } from 'src/users/dto/sign-in-user.dto';
 import { GetSessionInfoDto } from 'src/users/dto/get-session-info.dto';
+import { JwtAuthGuard } from './jwt.auth.guard';
 
 @ApiTags('Authorization')
 @Controller('/api/auth')
@@ -41,9 +43,17 @@ export class AuthController {
 
     @Post('/sign-out')
     @ApiOkResponse()
-    signOut() {}
+    @UseGuards(JwtAuthGuard)
+    signOut(
+        @Res({ passthrough: true }) res: Response
+    ) {
+        this.cookieService.removeToken(res)
+    }
     
     @Get('/session')
     @ApiOkResponse({ type: GetSessionInfoDto })
-    getSessionInfo() {}
+    @UseGuards(JwtAuthGuard)
+    getSessionInfo(@SessionInfo() session: GetSessionInfoDto) {
+        return session;
+    }
 }

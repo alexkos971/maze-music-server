@@ -10,8 +10,8 @@ export class UsersController {
 
     @Get()
     @UseGuards(JwtAuthGuard)
-    getHello(): string {
-        return `Hello - /api/users`;
+    async getAll() {
+        return await this.usersService.getUsers();
     }
     
     @Post('/create')
@@ -19,10 +19,6 @@ export class UsersController {
     createUser( @Body() userDto: CreateUserDto) {
         return this.usersService.createUser(userDto);
     }
-    // @Get()
-    // getAll(): string {
-    //     return this.usersService.getUsers();
-    // }
 
     // @Get(':id')
     // getOne(@Param() params: Record<string, string> ): string {

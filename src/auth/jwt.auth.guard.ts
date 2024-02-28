@@ -1,33 +1,29 @@
 import { CanActivate, ExecutionContext, UnauthorizedException, Injectable } from "@nestjs/common";
+import { Request } from "express";
 import { JwtService } from "@nestjs/jwt";
-import { Observable } from "rxjs";
+import { CookieService } from "./cookie.service";
 
 @Injectable()
 export class JwtAuthGuard implements CanActivate {
     constructor ( private jwtService: JwtService ) {}
 
-    canActivate( context: ExecutionContext ): boolean | Promise<boolean> | Observable<boolean> {
-        const req = context.switchToHttp().getRequest();
+    canActivate( context: ExecutionContext ) {
+        const req = context.switchToHttp().getRequest() as Request;
 
         try {
-            const authHeader = req.headers.authorization;
+            const token = req.cookies[CookieService.tokenKey];
 
-            if (!authHeader) {
-                throw new UnauthorizedException({ statusCode: 401, message: `Invalid Authorization: Header Authorization is not set` });
+            if (!token) {
+                throw new UnauthorizedException({ statusCode: 401, message: `Invalid Authorization: token is not set` });
             }
 
-            const [bearer, token] = authHeader.split(' ');
+            const sessionInfo = this.jwtService.verify(token);
 
-            if (bearer !== "Bearer" || !token) {
-                throw new UnauthorizedException({ statusCode: 401, message: `Invalid Authorization: not bearer or empty token` });
-            }
-
-            const user = this.jwtService.verify(token);
-            req.user = user;
-            return true;
-
+            req['session'] = sessionInfo;
         } catch (e) {
             throw new UnauthorizedException({ statusCode: 501, message: `Unauthorized request - ${e}` });
         }
+
+        return true;
     }
 }
