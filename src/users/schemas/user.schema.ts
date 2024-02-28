@@ -18,11 +18,14 @@ export class User {
     @Prop({ required: true })
     name: string;
     
+    @ApiProperty({ required: true, description: 'User Role', example: 'Listener' })
+    @Prop({ required: true })
+    role: string;
+    
     @ApiProperty({ required: true, description: 'User Email', example: 'email@gmail.com' })
     @Prop({ required: true, unique: true })
     email: string;
     
-
     @ApiProperty({ required: true, description: 'User Password', example: '@p67/3@vT%' })
     @Prop({ required: true })
     password: string;

@@ -12,12 +12,7 @@ export class AuthService {
         private jwtService: JwtService
     ) {}
 
-    async login(dto) {
-        const user = await this.validateUser(dto);
-        return this.generateToken(user); 
-    }
-
-    async register(userDto: CreateUserDto) {        
+    async signUp(userDto: CreateUserDto) {        
         // User is exist
         const candidate = await this.usersService.getUserBy({email: userDto.email});
         if (candidate) {
@@ -28,7 +23,12 @@ export class AuthService {
 
         const newUser = await this.usersService.createUser({ ...userDto, password: hashedPassword });
         
-        return this.generateToken(newUser);
+        return await this.generateToken(newUser);
+    }
+
+    async signIn(email: string, password: string) {
+        const user = await this.validateUser(email, password);
+        return this.generateToken(user); 
     }
 
     async generateToken(user: User) {
@@ -39,23 +39,23 @@ export class AuthService {
         }
     }
 
-    async validateUser(dto: CreateUserDto) {
-        if (!dto.email || !dto.password) {
+    async validateUser(email: string, password: string) {
+        if (!email || !password) {
             throw new UnauthorizedException({ statusCode: 401, message: 'Email or password is empty'});
         }
 
-        const user = await this.usersService.getUserBy({email: dto.email});
+        const user = await this.usersService.getUserBy({email: email});
 
         if (!user) {
             throw new UnauthorizedException({ statusCode: 401, message: 'Email not found'});
         }
 
-        const isPasswordEquals = await bcrypt.compare(dto.password, user.password);
+        const isPasswordEquals = await bcrypt.compare(password, user.password);
+        
         if (!isPasswordEquals) {
             throw new UnauthorizedException({ statusCode: 401, message: 'Password incorrect' });
         }
 
         return user;
-
     }
 }
