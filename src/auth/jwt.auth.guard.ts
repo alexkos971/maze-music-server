@@ -7,7 +7,7 @@ import { CookieService } from "./cookie.service";
 export class JwtAuthGuard implements CanActivate {
     constructor ( private jwtService: JwtService ) {}
 
-    canActivate( context: ExecutionContext ) {
+    async canActivate( context: ExecutionContext ) {
         const req = context.switchToHttp().getRequest() as Request;
 
         try {
@@ -17,7 +17,7 @@ export class JwtAuthGuard implements CanActivate {
                 throw new UnauthorizedException({ statusCode: 401, message: `Invalid Authorization: token is not set` });
             }
 
-            const sessionInfo = this.jwtService.verify(token);
+            const sessionInfo = await this.jwtService.verifyAsync(token);
 
             req['session'] = sessionInfo;
         } catch (e) {

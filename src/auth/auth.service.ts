@@ -28,7 +28,7 @@ export class AuthService {
 
     async signIn(email: string, password: string) {
         const user = await this.validateUser(email, password);
-        return this.generateToken(user); 
+        return await this.generateToken(user); 
     }
 
     async generateToken(user: User) {

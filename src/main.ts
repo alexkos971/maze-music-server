@@ -3,8 +3,19 @@ import { AppModule } from './app.module';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import * as cookieParser from "cookie-parser";
 
+// const whitelist = [
+//   'http://localhost:3000',
+//   'http://localhost:5000',
+// ]
+
 async function start() {
   const app = await NestFactory.create(AppModule);
+
+  app.enableCors({
+    allowedHeaders: ['content-type'],
+    origin: 'http://localhost:3000',
+    credentials: true,
+  });
 
   // Init Swagger
   const config = new DocumentBuilder()

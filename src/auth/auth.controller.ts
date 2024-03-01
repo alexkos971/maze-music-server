@@ -36,7 +36,7 @@ export class AuthController {
         @Body() body: SignInUserDto, 
         @Res({ passthrough: true }) res: Response
     ) {
-        const { token } = await this.authService.signIn(body.email, body.password);
+        const {token} = await this.authService.signIn(body.email, body.password);
         this.cookieService.setToken(res, token); 
     }
 
