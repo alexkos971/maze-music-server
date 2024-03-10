@@ -16,7 +16,7 @@ export class User {
 
     @ApiProperty({ required: true, description: 'User Name', example: 'John Doe' })
     @Prop({ required: true })
-    name: string;
+    full_name: string;
     
     @ApiProperty({ required: true, description: 'User Role', example: 'Listener' })
     @Prop({ required: true })

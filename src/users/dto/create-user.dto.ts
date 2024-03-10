@@ -8,7 +8,7 @@ export class CreateUserDto {
 
     @ApiProperty()
     @IsString({ message: 'Should be a string' })
-    readonly name: string;
+    readonly full_name: string;
     
     @IsString({ message: 'Should be a string' })
     @ApiProperty({ example: 'test@mail.com' })

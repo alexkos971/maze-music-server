@@ -1,8 +1,8 @@
-import { Controller, Get, Post, Body, UseGuards, UsePipes} from "@nestjs/common";
+import { Controller, Get, UseGuards } from "@nestjs/common";
 import { UsersService } from "./users.service";
 import { JwtAuthGuard } from "src/auth/jwt.auth.guard";
-import { CreateUserDto } from "./dto/create-user.dto";
-import { ValidationPipe } from "../pipes/validation.pipe";
+import { GetSessionInfoDto } from "./dto/get-session-info.dto";
+import { SessionInfo } from "src/auth/session-info.decorator";
 
 @Controller('/api/users')
 export class UsersController {
@@ -12,12 +12,12 @@ export class UsersController {
     @UseGuards(JwtAuthGuard)
     async getAll() {
         return await this.usersService.getUsers();
-    }
-    
-    @Post('/create')
-    @UsePipes(ValidationPipe)
-    createUser( @Body() userDto: CreateUserDto) {
-        return this.usersService.createUser(userDto);
+    }    
+
+    @Get('/profile')
+    @UseGuards(JwtAuthGuard)
+    async getProfile(@SessionInfo() session: GetSessionInfoDto) {
+        return await this.usersService.getUserBy({ '_id' : session.id});
     }
 
     // @Get(':id')
