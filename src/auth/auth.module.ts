@@ -5,6 +5,7 @@ import { AuthService } from './auth.service';
 import { UsersModule } from 'src/users/users.module';
 import { MailModule } from 'src/mail/mail.module';
 import { CookieService } from './cookie.service';
+import { FilesModule } from 'src/files/files.module';
 
 @Module({
   imports: [
@@ -16,7 +17,8 @@ import { CookieService } from './cookie.service';
         expiresIn: '24h'
       }
     }),
-    MailModule
+    MailModule,
+    FilesModule
   ],
   exports: [AuthService, JwtModule],
   controllers: [AuthController],

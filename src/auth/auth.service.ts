@@ -5,29 +5,37 @@ import { JwtService } from "@nestjs/jwt/dist";
 import { UsersService } from "src/users/users.service";
 import { MailService } from "src/mail/mail.service";
 import { User } from "src/users/schemas/user.schema";
+import { FilesService } from "src/files/files.service";
 
 @Injectable()
 export class AuthService {
     constructor (
         private usersService: UsersService,
         private jwtService: JwtService,
-        private mailService: MailService
+        private mailService: MailService,
+        private fileService: FilesService
     ) {}
 
-    async signUp(userDto: CreateUserDto) {        
+    async signUp(body: CreateUserDto, avatar: Express.Multer.File) {        
         // User is exist
-        const candidate = await this.usersService.getUserBy({email: userDto.email});
+        const candidate = await this.usersService.getUserBy({email: body.email});
         if (candidate) {
             throw new HttpException('user_is_exist', HttpStatus.BAD_REQUEST);
         }
 
-        if (!userDto.password || userDto.password.length < 8) {
+        if (!body.password || body.password.length < 8) {
             throw new HttpException('password_wrong', HttpStatus.BAD_REQUEST);
         }
 
-        const hashedPassword = await bcrypt.hash(userDto.password, 12);
+        const hashedPassword = await bcrypt.hash(body.password, 12);
 
-        let newUser = await this.usersService.createUser({ ...userDto, password: hashedPassword });        
+        let avatar_path = await this.fileService.saveFile(avatar, 'image');
+
+        let newUser = await this.usersService.createUser({ 
+            ...body, 
+            password: hashedPassword,
+            avatar: avatar_path ? avatar_path : null
+        });        
 
         return {
             token: this.generateToken(newUser),
@@ -45,7 +53,7 @@ export class AuthService {
     }
 
     generateToken(user: User) {
-        const payload = {email: user.email, id: user.id};
+        const payload = { email: user.email, id: user.id};
 
         return this.jwtService.sign(payload);
     }

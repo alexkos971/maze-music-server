@@ -1,10 +1,11 @@
-import { Controller, Post, Body, UsePipes, Get, Res, UseGuards, Param } from '@nestjs/common';
+import { Controller, Post, Body, UsePipes, Get, Res, UseGuards, UseInterceptors, UploadedFile, HttpException, HttpStatus } from '@nestjs/common';
 import { Response } from "express"
+import { FileInterceptor } from '@nestjs/platform-express';
 import { SessionInfo } from './session-info.decorator';
 import { AuthService } from './auth.service';
 import { CookieService } from './cookie.service';
 import { User } from 'src/users/schemas/user.schema';
-import { ApiOkResponse, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { ApiOkResponse, ApiOperation, ApiResponse, ApiTags, ApiConsumes } from '@nestjs/swagger';
 import { ValidationPipe } from '../pipes/validation.pipe';
 
 import { CreateUserDto } from 'src/users/dto/create-user.dto';
@@ -22,20 +23,26 @@ export class AuthController {
         private usersService: UsersService
     ) {}
 
+    // Swagger
     @ApiOperation({ summary: 'User registration' })
+    @ApiConsumes('multipart/form-data')
     @ApiResponse({ status: 200, type: User, description: 'Returns JWT-token'})
+    
+    // Settings
     @Post('/sign-up')
-    @UsePipes(ValidationPipe)
-    async singUp( 
-        @Body() dto: CreateUserDto, 
+    @UsePipes(ValidationPipe)    
+    @UseInterceptors(FileInterceptor('avatar'))
+    async singUp(
+        @Body() body: CreateUserDto, 
+        @UploadedFile() avatar,
         @Res({ passthrough: true }) res: Response 
     ) {
-        const {user, token} = await this.authService.signUp(dto);
+        const {user, token} = await this.authService.signUp(body, avatar);
         this.cookieService.setToken(res, token);                
         return user;
     }
     
-    @ApiOperation({ summary: 'User login' })
+    @ApiOperation({ summary: 'User login' })    
     @ApiResponse({ status: 200, type: User, description: 'Returns JWT-token'})
     @Post('/sign-in')
     async signIn( 
@@ -62,7 +69,13 @@ export class AuthController {
     @ApiOkResponse({ type: GetSessionInfoDto })
     @UseGuards(JwtAuthGuard)
     async getSessionInfo(@SessionInfo() session: GetSessionInfoDto, res: Response) { 
-        return await this.usersService.getUserBy({ 'email' : session.email});
+        let user = await this.usersService.getUserBy({ 'email' : session.email});
+    
+        if (!user) {
+            throw new HttpException('not_allowed', HttpStatus.NOT_FOUND);
+        }
+
+        return user;
     }
 
     // @Get('/verify-email')
