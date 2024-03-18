@@ -59,7 +59,11 @@ export class UsersService {
                 continue;
             }
 
-            else {
+            if (
+                (key == 'full_name' || key == 'description') 
+                && typeof body[key] == 'string'
+                && body[key].length !== 0
+            ) {
                 user[key] = body[key];
             }
         }
