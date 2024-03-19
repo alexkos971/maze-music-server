@@ -1,7 +1,7 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { ApiProperty } from '@nestjs/swagger';
 import * as mongoose from 'mongoose';
-import { Track } from 'src/track/schemas/track.schema';
+import { Track } from 'src/tracks/schemas/track.schema';
 import { Playlist } from 'src/playlist/schemas/playlist.schema';
 import { Album } from 'src/playlist/schemas/album.schema';
 

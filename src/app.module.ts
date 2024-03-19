@@ -4,6 +4,7 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { UsersModule } from './users/users.module';
 import { ConfigModule } from '@nestjs/config';
 import { AuthModule } from './auth/auth.module';
+import { TracksModule } from './tracks/tracks.module';
 // import { MailModule } from './mail/mail.module';
 import { FilesModule } from './files/files.module';
 import { ServeStaticModule } from '@nestjs/serve-static';
@@ -22,6 +23,7 @@ import { resolve } from "path";
     AuthModule,
     UsersModule,
     FilesModule,
+    TracksModule
   ],
   controllers: [],
   providers: [],

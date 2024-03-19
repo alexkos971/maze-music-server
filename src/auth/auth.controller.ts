@@ -8,7 +8,7 @@ import { User } from 'src/users/schemas/user.schema';
 import { ApiOkResponse, ApiOperation, ApiResponse, ApiTags, ApiConsumes } from '@nestjs/swagger';
 import { ValidationPipe } from '../pipes/validation.pipe';
 
-import { CreateUserDto } from 'src/users/dto/create-user.dto';
+import { SignUpUserDto } from 'src/users/dto/sign-up-user.dto';
 import { SignInUserDto } from 'src/users/dto/sign-in-user.dto';
 import { GetSessionInfoDto } from 'src/users/dto/get-session-info.dto';
 import { JwtAuthGuard } from './jwt.auth.guard';
@@ -33,7 +33,7 @@ export class AuthController {
     @UsePipes(ValidationPipe)    
     @UseInterceptors(FileInterceptor('avatar'))
     async singUp(
-        @Body() body: CreateUserDto, 
+        @Body() body: SignUpUserDto, 
         @UploadedFile() avatar,
         @Res({ passthrough: true }) res: Response 
     ) {

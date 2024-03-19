@@ -1,5 +1,5 @@
 import { Injectable, HttpException, HttpStatus, UnauthorizedException } from "@nestjs/common";
-import { CreateUserDto } from "../users/dto/create-user.dto";
+import { SignUpUserDto } from "../users/dto/sign-up-user.dto";
 import * as bcrypt from "bcrypt";
 import { JwtService } from "@nestjs/jwt/dist";
 import { UsersService } from "src/users/users.service";
@@ -16,7 +16,7 @@ export class AuthService {
         private fileService: FilesService
     ) {}
 
-    async signUp(body: CreateUserDto, avatar: Express.Multer.File) {        
+    async signUp(body: SignUpUserDto, avatar: Express.Multer.File) {        
         // User is exist
         const candidate = await this.usersService.getUserBy({email: body.email});
         if (candidate) {
@@ -53,7 +53,12 @@ export class AuthService {
     }
 
     generateToken(user: User) {
-        const payload = { email: user.email, id: user.id};
+        const payload = { 
+            email: user.email, 
+            userId: user.id
+        };
+
+        console.log(user.id, user.email)
 
         return this.jwtService.sign(payload);
     }

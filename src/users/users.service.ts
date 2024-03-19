@@ -1,6 +1,6 @@
 import { HttpException, Injectable, HttpStatus } from "@nestjs/common";
 import { User, UserDocument } from "./schemas/user.schema";
-import { CreateUserDto } from "./dto/create-user.dto";
+import { SignUpUserDto } from "./dto/sign-up-user.dto";
 import { InjectModel } from "@nestjs/mongoose";
 import { FilesService } from "src/files/files.service";
 import { Model } from "mongoose";
@@ -16,7 +16,7 @@ export class UsersService {
         private fileService: FilesService
     ) {}
     
-    async createUser(userDto: CreateUserDto) {
+    async createUser(userDto: SignUpUserDto) {
         const newUser = await new this.userModel({
             ...userDto, 
             followers: 0,

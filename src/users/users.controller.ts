@@ -18,7 +18,7 @@ export class UsersController {
     @Get('/profile')
     @UseGuards(JwtAuthGuard)
     async getProfile(@SessionInfo() session: GetSessionInfoDto) {
-        return await this.usersService.getUserBy({ '_id' : session.id});
+        return await this.usersService.getUserBy({ '_id' : session.userId});
     }
 
     @Put('/update')
