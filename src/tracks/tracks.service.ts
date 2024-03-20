@@ -43,7 +43,7 @@ export class TracksService {
             let duration = await this.getDuration(path.resolve(__dirname, '..', 'static', trackSrc));
             
             let coverSrc = cover ? await this.fileService.saveFile(cover, 'image') : null;
-    
+
             let newTrack = await new this.trackModel({
                 name,
                 src: trackSrc,
@@ -56,18 +56,21 @@ export class TracksService {
                 playedCount: 0
             });
     
-            await newTrack.save();        
-            // await newTrack.save(async (err, data) => {
-            //     data.id
-            // });        
+            await newTrack.save()
+                .then(async (track) => {
+                     await this.userModel.findByIdAndUpdate(userId, {
+                        $push: {
+                            tracks: track._id
+                        }
+                    });
+                    
+                });                
 
-            // let author = await this.userModel.findById(userId);
-            // author.tracks.push(newTrack.id);
-            // await author.save();
 
             return newTrack.toObject();
         }
         catch(e) {
+            console.log(e);
             throw new HttpException(e, HttpStatus.INTERNAL_SERVER_ERROR)
         }
         
@@ -94,10 +97,10 @@ export class TracksService {
                 await this.fileService.removeFile(track.cover);
             }
 
-            await this.userModel.updateOne({ id: track.artist }, {
-                $pullAll: {
-                    tracks: [{_id: trackId}],
-                },
+            await this.userModel.findByIdAndUpdate(track.artist, {
+                $pull: {
+                    tracks: trackId
+                }
             });
 
             await this.trackModel.deleteOne({ _id: trackId });
