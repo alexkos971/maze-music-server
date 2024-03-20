@@ -4,7 +4,6 @@ import * as bcrypt from "bcrypt";
 import { JwtService } from "@nestjs/jwt/dist";
 import { UsersService } from "src/users/users.service";
 import { MailService } from "src/mail/mail.service";
-import { User } from "src/users/schemas/user.schema";
 import { FilesService } from "src/files/files.service";
 
 @Injectable()
@@ -45,21 +44,15 @@ export class AuthService {
 
     async signIn(email: string, password: string) {
         const user = await this.validateUser(email, password);
-        
+
         return {
             token: this.generateToken(user),
             user: user
         };
     }
 
-    generateToken(user: User) {
-        const payload = { 
-            email: user.email, 
-            userId: user.id
-        };
-
-        console.log(user.id, user.email)
-
+    generateToken(user) {
+        const payload = { email: user.email, userId: user._id };
         return this.jwtService.sign(payload);
     }
 
@@ -81,6 +74,8 @@ export class AuthService {
         if (!isPasswordEquals) {
             throw new UnauthorizedException({ statusCode: 401, message: 'Password incorrect' });
         }
+
+        delete user.password;
 
         return user;
     }

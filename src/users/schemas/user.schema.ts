@@ -14,6 +14,9 @@ export class User {
     @Prop()
     id: mongoose.Schema.Types.ObjectId;
 
+    @Prop({ type: Date, required: true, default: Date.now() })
+    date: Date;
+
     @ApiProperty({ required: true, description: 'User Name', example: 'John Doe' })
     @Prop({ required: true })
     full_name: string;

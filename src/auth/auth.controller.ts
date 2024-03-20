@@ -69,7 +69,7 @@ export class AuthController {
     @ApiOkResponse({ type: GetSessionInfoDto })
     @UseGuards(JwtAuthGuard)
     async getSessionInfo(@SessionInfo() session: GetSessionInfoDto, res: Response) { 
-        let user = await this.usersService.getUserBy({ 'email' : session.email});
+        let user = await this.usersService.getUserBy({ 'email' : session.email}, { isProfile: true });
     
         if (!user) {
             throw new HttpException('not_allowed', HttpStatus.NOT_FOUND);

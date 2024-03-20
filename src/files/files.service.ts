@@ -47,7 +47,13 @@ export class FilesService {
                 throw new HttpException(`no_file`, HttpStatus.NO_CONTENT)
             }
             
-            await fs.unlink(path.join(this.file_path, file_name), (err) => {
+            let file = path.join(this.file_path, file_name);
+
+            if (!fs.existsSync(file)) {
+                return null;
+            }
+
+            await fs.unlink(file, (err) => {
                 if (err) {
                     throw new HttpException(`delete_error`, HttpStatus.INTERNAL_SERVER_ERROR)
                 }

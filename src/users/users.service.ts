@@ -6,7 +6,9 @@ import { FilesService } from "src/files/files.service";
 import { Model } from "mongoose";
 
 type GetUserOptions = {
-    withPassword?: boolean
+    withPassword?: boolean,
+    detail?: boolean,
+    isProfile?: boolean
 } | undefined;
 
 @Injectable()
@@ -31,9 +33,9 @@ export class UsersService {
 
         await newUser.save();
     
-        let user = newUser.toObject();
-        delete user.password;
-        return user;
+        const { password, ...result } = newUser.toObject();
+
+        return result;
     }
 
     async updateUser(email : string, body: any, avatar: Express.Multer.File) {
@@ -70,10 +72,8 @@ export class UsersService {
         
         await user.save();
 
-
-        let sendUser = user.toObject();
-        delete sendUser.password;
-        return sendUser;
+        let {password, ...result} = user.toObject();
+        return result;
         
     }
  
@@ -82,20 +82,30 @@ export class UsersService {
     }
 
     async getUserBy(props, options : GetUserOptions  = {
-        withPassword : false
+        withPassword : false,
+        detail: false,
+        isProfile: false
     }) {
-        let findUser = await this.userModel.findOne(props);
-        
-        if (!findUser) {
-            return null;
-        }
+        try {
+            let projection = { password: 0, savedTracks: 0, savedPlaylists: 0, savedArtists: 0, savedAlbums: 0 };
 
-        let user = findUser.toObject();
+            if (options.withPassword) {
+                delete projection.password; 
+            }
+            
+            if (options.isProfile) {
+                delete projection.savedAlbums;             
+                delete projection.savedArtists;             
+                delete projection.savedPlaylists;             
+                delete projection.savedTracks;             
+            }
 
-        if (!options.withPassword) {
-            delete user.password
+            let user = await this.userModel.findOne(props, projection);        
+            
+            return user;
         }
-        
-        return user;
+        catch(e) {
+            throw new HttpException(e, HttpStatus.BAD_REQUEST);
+        }
     }
 }
