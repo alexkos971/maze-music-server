@@ -1,4 +1,4 @@
-import { Controller, Get, Put, UseGuards, Body, Session, UseInterceptors, UploadedFile, Param } from "@nestjs/common";
+import { Controller, Get, Put, UseGuards, Body, Session, UseInterceptors, UploadedFile, Param, Response, HttpStatus } from "@nestjs/common";
 import { UsersService } from "./users.service";
 import { JwtAuthGuard } from "src/auth/jwt.auth.guard";
 import { GetSessionInfoDto } from "./dto/get-session-info.dto";
@@ -38,6 +38,12 @@ export class UsersController {
         @UploadedFile() avatar: Express.Multer.File
     ) {
         return this.usersService.updateUser(session.email, body, avatar);
+    }
+
+    @Put('follow/:id')
+    @UseGuards(JwtAuthGuard)
+    async followUser(@SessionInfo() session: GetSessionInfoDto, @Param() param: any) {
+        return this.usersService.followUser(session.userId, param.id);        
     }
 
     @Get(':id')

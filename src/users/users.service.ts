@@ -3,7 +3,7 @@ import { User, UserDocument } from "./schemas/user.schema";
 import { SignUpUserDto } from "./dto/sign-up-user.dto";
 import { InjectModel } from "@nestjs/mongoose";
 import { FilesService } from "src/files/files.service";
-import { Model } from "mongoose";
+import { Model, ObjectId } from "mongoose";
 
 type GetUserOptions = {
     withPassword?: boolean,
@@ -106,6 +106,55 @@ export class UsersService {
         }
         catch(e) {
             throw new HttpException(e, HttpStatus.BAD_REQUEST);
+        }
+    }
+
+    async followUser(userId: ObjectId, followId: string) {
+        try {
+            let followUser = await this.userModel.findById(followId);
+            
+            if (!followUser) {
+                throw new HttpException('no_follow_user', HttpStatus.BAD_REQUEST);
+            }
+            
+            let user = await this.userModel.findById(userId)
+            
+            let indexOfId = user.savedArtists.indexOf(followUser);
+
+            // if (indexOfId == -1) {
+            //     user.savedArtists.push(followUser);
+            // } else {
+            //     user.savedArtists.pull(followId);
+            // }
+
+            await user.save();
+            // , {
+            //     $addToSet: { savedArtists: followUser.id },
+            //     $pull: { savedArtists: followUser._id },
+            // }, 
+            // { new: true, upsert: false});
+    
+
+            // let isFollowed = user.savedArtists.includes(followUser);
+
+            // let isFollowed = updatedUser.savedArtists;
+            // followUser.followers = isFollowed ? followUser.followers - 1 : followUser.followers + 1;
+            // await followUser.save();
+
+            // user.savedArtists.filter(id => isFollowed ? id !== followUser : id == followUser);
+            // await this.userModel.findByIdAndUpdate(userId, {
+            //     [isFollowed ? "$pull" : "$push"]: {
+            //         savedArtists: followId
+            //     }
+            // });
+
+            return {
+                followed: user.savedArtists
+            };
+
+        } catch(e) {
+            console.log(e);
+            throw new HttpException(e, HttpStatus.BAD_REQUEST)
         }
     }
 }
