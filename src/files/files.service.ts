@@ -13,7 +13,7 @@ export class FilesService {
         'image': ['png', 'jpg', 'webp', 'svg']
     }
 
-    private file_path = path.resolve(__dirname, '..', 'static');
+    private file_path = path.resolve(__dirname, '../..', 'static');
 
     async saveFile(file: Express.Multer.File, type: FileType) : Promise<string> {
         try {

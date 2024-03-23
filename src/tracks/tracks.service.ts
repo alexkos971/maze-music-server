@@ -40,7 +40,7 @@ export class TracksService {
             if (!name) throw new HttpException('no_name', HttpStatus.BAD_REQUEST);
     
             let trackSrc = await this.fileService.saveFile(track, 'audio');
-            let duration = await this.getDuration(path.resolve(__dirname, '..', 'static', trackSrc));
+            let duration = await this.getDuration(path.resolve(__dirname, '../..', 'static', trackSrc));
             
             let coverSrc = cover ? await this.fileService.saveFile(cover, 'image') : null;
 

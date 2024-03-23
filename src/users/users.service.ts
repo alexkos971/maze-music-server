@@ -117,39 +117,20 @@ export class UsersService {
                 throw new HttpException('no_follow_user', HttpStatus.BAD_REQUEST);
             }
             
-            let user = await this.userModel.findById(userId)
-            
-            let indexOfId = user.savedArtists.indexOf(followUser);
+            let user = await this.userModel.findById(userId);        
+            let isSaved = user.savedArtists.map(user=>user.toString()).includes(followId);
 
-            // if (indexOfId == -1) {
-            //     user.savedArtists.push(followUser);
-            // } else {
-            //     user.savedArtists.pull(followId);
-            // }
+            followUser.followers = isSaved ? followUser.followers - 1 : followUser.followers + 1;        
+            await followUser.save();
 
-            await user.save();
-            // , {
-            //     $addToSet: { savedArtists: followUser.id },
-            //     $pull: { savedArtists: followUser._id },
-            // }, 
-            // { new: true, upsert: false});
-    
-
-            // let isFollowed = user.savedArtists.includes(followUser);
-
-            // let isFollowed = updatedUser.savedArtists;
-            // followUser.followers = isFollowed ? followUser.followers - 1 : followUser.followers + 1;
-            // await followUser.save();
-
-            // user.savedArtists.filter(id => isFollowed ? id !== followUser : id == followUser);
-            // await this.userModel.findByIdAndUpdate(userId, {
-            //     [isFollowed ? "$pull" : "$push"]: {
-            //         savedArtists: followId
-            //     }
-            // });
+            await this.userModel.findByIdAndUpdate(userId, {
+                [isSaved ? "$pull" : "$push"]: {
+                    savedArtists: followId
+                }
+            });
 
             return {
-                followed: user.savedArtists
+                followed: !isSaved
             };
 
         } catch(e) {

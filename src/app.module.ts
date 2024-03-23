@@ -16,7 +16,7 @@ import { resolve } from "path";
       envFilePath: '.env'
     }),
     ServeStaticModule.forRoot({
-      rootPath: resolve(__dirname, 'static')
+      rootPath: resolve(__dirname, '..', 'static')
     }),
     MongooseModule.forRoot(`mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASSWORD}@cluster0.ewrgz.azure.mongodb.net/app?retryWrites=true&w=majority&appName=Cluster0`),
     // MailModule,
