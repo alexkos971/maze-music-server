@@ -8,6 +8,8 @@ import { TracksModule } from './tracks/tracks.module';
 import { FilesModule } from './files/files.module';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { resolve } from "path";
+import { FirebaseService } from './firebase/firebase.service';
+import { FirebaseModule } from './firebase/firebase.module';
 
 @Module({
   imports: [
@@ -22,9 +24,10 @@ import { resolve } from "path";
     AuthModule,
     UsersModule,
     FilesModule,
-    TracksModule
+    TracksModule,
+    FirebaseModule
   ],
   controllers: [],
-  providers: [],
+  providers: [FirebaseService],
 })
 export class AppModule {}
