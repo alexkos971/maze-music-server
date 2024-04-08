@@ -13,7 +13,8 @@ async function start() {
 
   app.enableCors({
     allowedHeaders: ['content-type'],
-    origin: 'http://localhost:3000',
+    // origin: 'http://localhost:3000',
+    origin: true,
     credentials: true,
   });
 

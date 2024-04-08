@@ -24,7 +24,7 @@ import { HandlebarsAdapter } from '@nestjs-modules/mailer/dist/adapters/handleba
                 options: {
                   strict: true,
                 },
-            },
+            }
         })
     ],
     providers: [MailService],

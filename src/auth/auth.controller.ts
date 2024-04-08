@@ -1,5 +1,4 @@
-import { Controller, Post, Body, UsePipes, Get, Res, UseGuards, UseInterceptors, UploadedFile, HttpException, HttpStatus } from '@nestjs/common';
-import { Response } from "express"
+import { Controller, Post, Body, UsePipes, Get, Res, Param, UseGuards, UseInterceptors, UploadedFile, HttpException, HttpStatus, Response } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { SessionInfo } from './session-info.decorator';
 import { AuthService } from './auth.service';
@@ -35,7 +34,7 @@ export class AuthController {
     async singUp(
         @Body() body: SignUpUserDto, 
         @UploadedFile() avatar,
-        @Res({ passthrough: true }) res: Response 
+        @Response({ passthrough: true }) res 
     ) {
         const {user, token} = await this.authService.signUp(body, avatar);
         this.cookieService.setToken(res, token);                
@@ -47,7 +46,7 @@ export class AuthController {
     @Post('/sign-in')
     async signIn( 
         @Body() body: SignInUserDto, 
-        @Res({ passthrough: true }) res: Response
+        @Response({ passthrough: true }) res
     ) {
         const {token, user} = await this.authService.signIn(body.email, body.password);
 
@@ -60,7 +59,7 @@ export class AuthController {
     @ApiOkResponse()
     @UseGuards(JwtAuthGuard)
     signOut(
-        @Res({ passthrough: true }) res: Response
+        @Response({ passthrough: true }) res
     ) {
         this.cookieService.removeToken(res)
     }
@@ -78,9 +77,21 @@ export class AuthController {
         return user;
     }
 
-    // @Get('/verify-email')
-    // @ApiOkResponse()
-    // verifyEmail(@Param() param, res: Response ) {
-    //     this.authService.verifyEmail(param.email);
-    // }
+    @ApiOperation({ summary: 'Check on exist email' })
+    @Get('/verify-email/:email')
+    @ApiOkResponse()
+    async verifyEmail(@Param() params, @Response() res ) {
+        try {
+            let isExist = await this.usersService.getUserBy({"email": params.email});        
+
+            return res.status(HttpStatus.OK).json({
+                is_exist: isExist ? true : false
+            });
+        }
+        catch(e) {
+            console.log(e)
+            throw new HttpException('server_error', HttpStatus.SERVICE_UNAVAILABLE)
+        }
+        
+    }
 }

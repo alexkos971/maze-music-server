@@ -3,7 +3,7 @@ import { SignUpUserDto } from "../users/dto/sign-up-user.dto";
 import * as bcrypt from "bcrypt";
 import { JwtService } from "@nestjs/jwt/dist";
 import { UsersService } from "src/users/users.service";
-import { MailService } from "src/mail/mail.service";
+// import { MailService } from "src/mail/mail.service";
 import { FilesService } from "src/files/files.service";
 
 @Injectable()
@@ -11,7 +11,7 @@ export class AuthService {
     constructor (
         private usersService: UsersService,
         private jwtService: JwtService,
-        private mailService: MailService,
+        // private mailService: MailService,
         private fileService: FilesService
     ) {}
 
@@ -78,15 +78,5 @@ export class AuthService {
         delete user.password;
 
         return user;
-    }
-
-    async verifyEmail(email: string) {
-        let code = '';
-
-        for (let i = 0; i < 4; i++) {
-            code += Math.floor(Math.random() * 10);
-        }
-
-        await this.mailService.sendEmailCode(email, code);
     }
 }
