@@ -1,12 +1,13 @@
-import { Controller, Get, Put, UseGuards, Body, Session, UseInterceptors, UploadedFile, Param, Response, HttpStatus } from "@nestjs/common";
+import { Controller, Get, Put, UseGuards, Body, UseInterceptors, UploadedFile, Param, Response, HttpStatus } from "@nestjs/common";
 import { UsersService } from "./users.service";
 import { JwtAuthGuard } from "src/auth/jwt.auth.guard";
-import { GetSessionInfoDto } from "./dto/get-session-info.dto";
+import { GetSessionInfoDto } from "../auth/dto/get-session-info.dto";
 import { SessionInfo } from "src/auth/session-info.decorator";
 import { FileInterceptor } from "@nestjs/platform-express";
-import { ApiTags } from "@nestjs/swagger";
+import { ApiOperation, ApiParam, ApiResponse, ApiTags } from "@nestjs/swagger";
+import { GetUserDto } from "./dto/get-user.dto";
 
-@ApiTags('Users')
+@ApiTags('Users Endpoints')
 @Controller('/api/users')
 export class UsersController {
     constructor ( private usersService: UsersService ) {}
@@ -47,6 +48,8 @@ export class UsersController {
     }
 
     @Get(':id')
+    @ApiOperation({ summary: 'Get User By the Id' })
+    @ApiResponse({ status: HttpStatus.OK, type: GetUserDto })
     @UseGuards(JwtAuthGuard)
     async getOne(@Param() params: Record<string, string> ) {
         return await this.usersService.getUserBy({ _id: params.id}, {

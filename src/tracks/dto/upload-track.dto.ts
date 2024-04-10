@@ -1,17 +1,14 @@
-import { IsString, IsArray } from "class-validator";
 import { ApiProperty } from "@nestjs/swagger";
 import mongoose from "mongoose";
 
 export class UploadTrackDto {
 
-    @ApiProperty({ type: mongoose.Schema.Types.ObjectId, description: "Track's ID"})
+    @ApiProperty({ example: "6612ee7cba2dcf83a81d2cce"})
     readonly userId: mongoose.Schema.Types.ObjectId
 
     @ApiProperty({ example: 'Cool Track' })
-    @IsString({ message: 'Should be a string' })
     readonly name: string;
     
-    @IsArray()
     @ApiProperty({ example: ['EDM', 'Jazz', 'Funk'] })
     readonly genres: string[];
     

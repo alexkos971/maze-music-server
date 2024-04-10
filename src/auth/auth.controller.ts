@@ -1,4 +1,4 @@
-import { Controller, Post, Body, UsePipes, Get, Res, Param, UseGuards, UseInterceptors, UploadedFile, HttpException, HttpStatus, Response } from '@nestjs/common';
+import { Controller, Post, Body, UsePipes, Get, Param, UseGuards, UseInterceptors, UploadedFile, HttpException, HttpStatus, Response } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { SessionInfo } from './session-info.decorator';
 import { AuthService } from './auth.service';
@@ -9,11 +9,11 @@ import { ValidationPipe } from '../pipes/validation.pipe';
 
 import { SignUpUserDto } from 'src/users/dto/sign-up-user.dto';
 import { SignInUserDto } from 'src/users/dto/sign-in-user.dto';
-import { GetSessionInfoDto } from 'src/users/dto/get-session-info.dto';
+import { GetSessionInfoDto } from './dto/get-session-info.dto';
 import { JwtAuthGuard } from './jwt.auth.guard';
 import { UsersService } from 'src/users/users.service';
 
-@ApiTags('Authorization')
+@ApiTags('Authorization Endpoints')
 @Controller('/api/auth')
 export class AuthController {
     constructor ( 

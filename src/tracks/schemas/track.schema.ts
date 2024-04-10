@@ -42,13 +42,13 @@ export class Track {
     @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'Album' })
     album: null | mongoose.Schema.Types.ObjectId
     
-    @ApiProperty({ type: String, description: "Track's duration", example: '2:02'})
-    @Prop({ required: true, example: '2:42' })
-    duration: string;
+    @ApiProperty({ type: Number, description: "Track's duration", example: 1234125})
+    @Prop({ required: true, example: 131523 })
+    duration: number;
     
     @ApiProperty({ type: String, description: "Track's played count", example: 103211})
     @Prop({ required: true, default: 0 })
-    playedCount: number;
+    played_count: number;
 }
 
 export const TrackSchema = SchemaFactory.createForClass(Track);

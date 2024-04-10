@@ -16,17 +16,17 @@ export class TracksService {
         @InjectModel(Track.name) private trackModel: Model<TrackDocument>,
     ) {}    
 
-    async getDuration (src : string) : Promise<string> {
+    async getDuration (src : string) : Promise<number> {
         if (!src) return null;
 
         let metadata = await mm.parseFile(src);
 
         if (metadata && metadata.format && metadata.format.duration && metadata.format.duration > 0) {
             let s = metadata.format.duration;
-            return (s - (s %= 60)) / 60 + (10 < s ? ':' : ':0') + ~~(s);
+            return s;
         }
 
-        return '0:00';
+        return 0;
     }
 
     async uploadTrack(props : UploadTrackDto) {
