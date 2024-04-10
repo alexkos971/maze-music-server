@@ -7,5 +7,4 @@ export class ValidationException extends HttpException {
         super(response, HttpStatus.BAD_REQUEST); 
         this.messages = response;
     }
-
 }

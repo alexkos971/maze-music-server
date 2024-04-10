@@ -3,7 +3,7 @@ import { FileInterceptor } from '@nestjs/platform-express';
 import { SessionInfo } from './session-info.decorator';
 import { AuthService } from './auth.service';
 import { CookieService } from './cookie.service';
-import { ApiOkResponse, ApiOperation, ApiResponse, ApiTags, ApiConsumes, ApiParam, ApiCookieAuth } from '@nestjs/swagger';
+import { ApiOkResponse, ApiOperation, ApiResponse, ApiTags, ApiConsumes, ApiCookieAuth } from '@nestjs/swagger';
 import { ValidationPipe } from '../pipes/validation.pipe';
 
 import { SignUpUserDto } from 'src/users/dto/sign-up-user.dto';
@@ -29,16 +29,22 @@ export class AuthController {
     
     // Settings
     @Post('/sign-up')
-    @UsePipes(ValidationPipe)    
     @UseInterceptors(FileInterceptor('avatar'))
+    @UsePipes(ValidationPipe)    
     async singUp(
         @Body() body: SignUpUserDto, 
-        @UploadedFile() avatar,
+        @UploadedFile() avatar: Express.Multer.File | null,
         @Response({ passthrough: true }) res 
     ) {
-        const {user, token} = await this.authService.signUp(body, avatar);
-        this.cookieService.setToken(res, token);                
-        return user;
+        try {
+            const {user, token} = await this.authService.signUp(body, avatar ?? null);
+            this.cookieService.setToken(res, token);                
+            return user;
+        }
+        catch(e) {
+            console.log('Auth.Controller - 45', e);
+            throw new HttpException('server_error', HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
     
     @ApiOperation({ summary: 'User login' })    

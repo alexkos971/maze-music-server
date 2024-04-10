@@ -38,19 +38,19 @@ export class User {
     description: string | null;
     
     @ApiProperty({description: 'Count of user followers', example: 223444})
-    @Prop()
+    @Prop({ default: 0, type: Number })
     followers: number;   
     
     @ApiProperty({description: "Array of user playlist id's", example: [34234234, 235234532, 2345324]})
-    @Prop({ type: [{type: mongoose.Schema.ObjectId, ref: 'Playlist'}] })
+    @Prop({ type: [{type: mongoose.Schema.ObjectId, ref: 'Playlist'}], default: [] })
     playlists: Playlist[];
     
     @ApiProperty({description: "Array of user albums id's", example: [34234234, 235234532, 2345324]})
-    @Prop({ type: [{type: mongoose.Schema.ObjectId, ref: 'Album'}] })
+    @Prop({ type: [{type: mongoose.Schema.ObjectId, ref: 'Album'}], default: [] })
     albums: Album[];
     
     @ApiProperty({description: "Array of user tracks", example: [34234234, 235234532, 2345324]})
-    @Prop({ type: [{type: mongoose.Schema.ObjectId, ref: 'Track'}] })
+    @Prop({ type: [{type: mongoose.Schema.ObjectId, ref: 'Track'}], default: [] })
     tracks: Track[];
     
     @ApiProperty({description: "Users's avatar - path to file", example: 'http://example.com/static/647-4234-23.png'})
@@ -62,23 +62,23 @@ export class User {
     genres: string[];
     
     @ApiProperty({description: "Array of users's tracks", example: [3423233432, 45693278, 92647345]})
-    @Prop({ type: [{type: mongoose.Schema.ObjectId, ref: 'Track' }] })
-    savedTracks: Track[];
+    @Prop({ type: [{type: mongoose.Schema.ObjectId, ref: 'Track' }], default: [] })
+    saved_tracks: Track[];
     
     @ApiProperty({description: "Array of users's saved playlists", example: [3423233432, 45693278, 92647345]})
-    @Prop({ type: [{type: mongoose.Schema.ObjectId, ref: 'Playlist' }] })
-    savedPlaylists: Playlist[];
+    @Prop({ type: [{type: mongoose.Schema.ObjectId, ref: 'Playlist' }], default: [] })
+    saved_playlists: Playlist[];
     
     @ApiProperty({description: "Array of users's saved albums", example: [3423233432, 45693278, 92647345]})
-    @Prop({ type: [{type: mongoose.Schema.ObjectId, ref: 'Album' }] })
-    savedAlbums: Album[];
+    @Prop({ type: [{type: mongoose.Schema.ObjectId, ref: 'Album' }], default: [] })
+    saved_albums: Album[];
     
     @ApiProperty({description: "Array of users's saved artists", example: [3423233432, 45693278, 92647345]})
-    @Prop({ type: [{type: mongoose.Schema.ObjectId, ref: 'User' }] })
-    savedArtists: User[];    
+    @Prop({ type: [{type: mongoose.Schema.ObjectId, ref: 'User' }], default: [] })
+    saved_artists: User[];    
     
     @ApiProperty({description: "Count of users's listenings every month", example: 3423233})
-    @Prop()
+    @Prop({ default: 0, type: Number })
     listenings: number;
     
 }

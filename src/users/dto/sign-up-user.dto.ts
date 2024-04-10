@@ -1,4 +1,4 @@
-import { IsString, IsEmail, Length, IsOptional, IsArray } from "class-validator";
+import { IsString, IsEmail, Length, IsOptional, IsArray, IsEmpty } from "class-validator";
 import { ApiProperty } from "@nestjs/swagger";
 
 export class SignUpUserDto {
@@ -29,8 +29,8 @@ export class SignUpUserDto {
     @IsArray()
     @ApiProperty()
     readonly genres: string[];
-    
-    @IsOptional()
-    @ApiProperty({ example: '/uploads/avatars/yweriw-2345324-asdfad-4.png' })
-    readonly avatar: string;
+
+    // @IsOptional()
+    // @ApiProperty()
+    // readonly avatar: string;
 }

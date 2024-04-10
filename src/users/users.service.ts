@@ -18,17 +18,9 @@ export class UsersService {
         private fileService: FilesService
     ) {}
     
-    async createUser(userDto: SignUpUserDto) {
+    async createUser(userDto) {
         const newUser = await new this.userModel({
-            ...userDto, 
-            followers: 0,
-            listenings: 0,
-            playlists: [],
-            albums: [],
-            tracks: [],
-            savedPlaylists: [],
-            savedAlbums: [],
-            savedTracks: [],
+            ...userDto
         });
 
         await newUser.save();
@@ -93,17 +85,17 @@ export class UsersService {
         isProfile: false
     }) {
         try {
-            let projection = { password: 0, savedTracks: 0, savedPlaylists: 0, savedArtists: 0, savedAlbums: 0 };
+            let projection = { password: 0, saved_tracks: 0, saved_playlists: 0, saved_artists: 0, saved_albums: 0 };
 
             if (options.withPassword) {
                 delete projection.password; 
             }
             
             if (options.isProfile) {
-                delete projection.savedAlbums;             
-                delete projection.savedArtists;             
-                delete projection.savedPlaylists;             
-                delete projection.savedTracks;             
+                delete projection.saved_albums;             
+                delete projection.saved_artists;             
+                delete projection.saved_playlists;             
+                delete projection.saved_tracks;             
             }
 
             let user = await this.userModel.findOne(props, projection);        
@@ -124,14 +116,14 @@ export class UsersService {
             }
             
             let user = await this.userModel.findById(userId);        
-            let isSaved = user.savedArtists.map(user=>user.toString()).includes(followId);
+            let isSaved = user.saved_artists.map(user=>user.toString()).includes(followId);
 
             followUser.followers = isSaved ? followUser.followers - 1 : followUser.followers + 1;        
             await followUser.save();
 
             await this.userModel.findByIdAndUpdate(userId, {
                 [isSaved ? "$pull" : "$push"]: {
-                    savedArtists: followId
+                    saved_artists: followId
                 }
             });
 

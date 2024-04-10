@@ -15,31 +15,37 @@ export class AuthService {
         private fileService: FilesService
     ) {}
 
-    async signUp(body: SignUpUserDto, avatar: Express.Multer.File) {        
-        // User is exist
-        const candidate = await this.usersService.getUserBy({email: body.email});
-        if (candidate) {
-            throw new HttpException('user_is_exist', HttpStatus.BAD_REQUEST);
+    async signUp(body: SignUpUserDto, avatar: Express.Multer.File | null) {        
+        try {
+            // User is exist
+            const candidate = await this.usersService.getUserBy({email: body.email});
+            if (candidate) {
+                throw new HttpException('user_is_exist', HttpStatus.BAD_REQUEST);
+            }
+    
+            if (!body.password || body.password.length < 8) {
+                throw new HttpException('password_wrong', HttpStatus.BAD_REQUEST);
+            }
+    
+            const hashedPassword = await bcrypt.hash(body.password, 12);
+    
+            let avatar_path = avatar ? await this.fileService.saveFile(avatar, 'image') : null;
+    
+            let newUser = await this.usersService.createUser({ 
+                ...body, 
+                password: hashedPassword,
+                avatar: avatar_path
+            });        
+    
+            return {
+                token: this.generateToken(newUser),
+                user: newUser
+            };
         }
-
-        if (!body.password || body.password.length < 8) {
-            throw new HttpException('password_wrong', HttpStatus.BAD_REQUEST);
+        catch(e) {
+            console.log('Auth.Service - 46', e);
+            throw new HttpException('server_error', HttpStatus.INTERNAL_SERVER_ERROR);
         }
-
-        const hashedPassword = await bcrypt.hash(body.password, 12);
-
-        let avatar_path = await this.fileService.saveFile(avatar, 'image');
-
-        let newUser = await this.usersService.createUser({ 
-            ...body, 
-            password: hashedPassword,
-            avatar: avatar_path ? avatar_path : null
-        });        
-
-        return {
-            token: this.generateToken(newUser),
-            user: newUser
-        };
     }
 
     async signIn(email: string, password: string) {
