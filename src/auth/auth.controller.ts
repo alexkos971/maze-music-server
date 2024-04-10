@@ -3,8 +3,7 @@ import { FileInterceptor } from '@nestjs/platform-express';
 import { SessionInfo } from './session-info.decorator';
 import { AuthService } from './auth.service';
 import { CookieService } from './cookie.service';
-import { User } from 'src/users/schemas/user.schema';
-import { ApiOkResponse, ApiOperation, ApiResponse, ApiTags, ApiConsumes } from '@nestjs/swagger';
+import { ApiOkResponse, ApiOperation, ApiResponse, ApiTags, ApiConsumes, ApiParam, ApiCookieAuth } from '@nestjs/swagger';
 import { ValidationPipe } from '../pipes/validation.pipe';
 
 import { SignUpUserDto } from 'src/users/dto/sign-up-user.dto';
@@ -12,6 +11,7 @@ import { SignInUserDto } from 'src/users/dto/sign-in-user.dto';
 import { GetSessionInfoDto } from './dto/get-session-info.dto';
 import { JwtAuthGuard } from './jwt.auth.guard';
 import { UsersService } from 'src/users/users.service';
+import { GetUserDto } from 'src/users/dto/get-user.dto';
 
 @ApiTags('Authorization Endpoints')
 @Controller('/api/auth')
@@ -25,7 +25,7 @@ export class AuthController {
     // Swagger
     @ApiOperation({ summary: 'User registration' })
     @ApiConsumes('multipart/form-data')
-    @ApiResponse({ status: 200, type: User, description: 'Returns JWT-token'})
+    @ApiResponse({ status: 200, type: GetUserDto, description: 'Returns user object and set JWT-token to the cookis'})
     
     // Settings
     @Post('/sign-up')
@@ -42,7 +42,7 @@ export class AuthController {
     }
     
     @ApiOperation({ summary: 'User login' })    
-    @ApiResponse({ status: 200, type: User, description: 'Returns JWT-token'})
+    @ApiResponse({ status: 200, type: GetUserDto, description: 'Returns User object and set JWT-token to the cookis'})
     @Post('/sign-in')
     async signIn( 
         @Body() body: SignInUserDto, 
@@ -56,18 +56,21 @@ export class AuthController {
 
 
     @Post('/sign-out')
-    @ApiOkResponse()
+    @ApiOperation({ summary: 'Removes JWT-token' })
+    @ApiOkResponse({ status: 200, description: 'Removes JWT-token from cookies' })
     @UseGuards(JwtAuthGuard)
     signOut(
         @Response({ passthrough: true }) res
-    ) {
-        this.cookieService.removeToken(res)
-    }
-    
+        ) {
+            this.cookieService.removeToken(res)
+        }
+        
     @Get('/session')
-    @ApiOkResponse({ type: GetSessionInfoDto })
+    @ApiCookieAuth()
+    @ApiOperation({ summary: 'Check current session' })
+    @ApiOkResponse({ type: GetUserDto, description: 'Returns User object and' })
     @UseGuards(JwtAuthGuard)
-    async getSessionInfo(@SessionInfo() session: GetSessionInfoDto, res: Response) { 
+    async getSessionInfo(@SessionInfo() session: GetSessionInfoDto) { 
         let user = await this.usersService.getUserBy({ 'email' : session.email}, { isProfile: true });
     
         if (!user) {

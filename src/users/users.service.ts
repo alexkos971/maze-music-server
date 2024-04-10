@@ -46,6 +46,7 @@ export class UsersService {
         }
 
         if (avatar) {
+            
             let newAvatar = user.avatar
                 ? await this.fileService.replaceFile(user.avatar, avatar, 'image')                
                 : await this.fileService.saveFile(avatar, 'image');
@@ -59,6 +60,11 @@ export class UsersService {
 
             if (key == 'password' || key == 'email' || key == 'id') {
                 continue;
+            }
+
+            if (key == 'avatar' && body[key] == "null") {
+                await this.fileService.removeFile(user.avatar);
+                user.avatar = null;
             }
 
             if (
