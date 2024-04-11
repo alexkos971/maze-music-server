@@ -30,12 +30,12 @@ export class TracksController {
         { name: 'cover', maxCount: 1 }
     ]))
     @Post('/upload')
-    async uploadTrack(
+    uploadTrack(
         @SessionInfo() session: GetSessionInfoDto, 
         @Body() body: UploadTrackDto,
         @UploadedFiles() files: {track?: Express.Multer.File[], cover?: Express.Multer.File[]}
     ) {
-        return await this.tracksService.uploadTrack({
+        return this.tracksService.uploadTrack({
             ...body, 
             userId: session.userId, 
             track: files?.track?.length ? files?.track[0] : null, 
@@ -46,8 +46,8 @@ export class TracksController {
     @ApiOperation({ summary: 'Delete track' })
     @ApiResponse({ status: 200, type: Track, description: 'Returns Track object'})
     @UseGuards(JwtAuthGuard)
-    @Delete('/delete/:ID')
-    async deleteTrack(@Param() param) {
-        return await this.tracksService.deleteTrack(param.ID);
+    @Delete('/delete/:id')
+    deleteTrack(@Param() param) {
+        return this.tracksService.deleteTrack(param.id);
     }
 }

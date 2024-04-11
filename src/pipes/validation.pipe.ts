@@ -18,7 +18,7 @@ export class ValidationPipe implements PipeTransform<any> {
                 return `${err.property} - ${Object.values(err.constraints).join(', ')}`;
             });
 
-            throw new ValidationException(messages);
+            throw new ValidationException(messages, HttpStatus.BAD_REQUEST);
         }
 
         return value;

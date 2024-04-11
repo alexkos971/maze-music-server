@@ -2,18 +2,14 @@ import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import * as cookieParser from "cookie-parser";
+import { ValidationPipe } from '@nestjs/common';
 
-// const whitelist = [
-//   'http://localhost:3000',
-//   'http://localhost:5000',
-// ]
 
 async function start() {
   const app = await NestFactory.create(AppModule);
 
   app.enableCors({
     allowedHeaders: ['content-type'],
-    // origin: 'http://localhost:3000',
     origin: true,
     credentials: true,
   });
@@ -37,6 +33,12 @@ async function start() {
   });
 
   app.use(cookieParser());
+
+  app.useGlobalPipes(new ValidationPipe({
+    whitelist: true,
+    forbidNonWhitelisted: true,
+    skipUndefinedProperties: false
+  }));
 
   const PORT = process.env.PORT || 5000;
   await app.listen(PORT, () => console.log(`Server started on port = ${PORT}`));

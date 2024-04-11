@@ -76,7 +76,13 @@ export class UsersService {
     }
  
     async getUsers() {
-        return 'users';
+        return await this.userModel.find({}, {
+            password: 0,
+            saved_tracks: 0,
+            saved_playlists: 0,
+            saved_artists: 0,
+            saved_albums: 0
+        });
     }
 
     async getUserBy(props, options : GetUserOptions  = {

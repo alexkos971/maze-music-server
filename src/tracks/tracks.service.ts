@@ -2,7 +2,6 @@ import { Injectable, HttpStatus, HttpException, NotFoundException } from "@nestj
 import { InjectModel } from "@nestjs/mongoose";
 import { Model } from "mongoose";
 import { Track, TrackDocument } from "./schemas/track.schema";
-import { UploadTrackDto } from "./dto/upload-track.dto";
 import { FilesService } from "src/files/files.service";
 import * as mm from "music-metadata";
 import * as path from "path";
@@ -29,12 +28,13 @@ export class TracksService {
         return 0;
     }
 
-    async uploadTrack(props : UploadTrackDto) {
+    async uploadTrack(props) {
         try {
             let { userId, genres, name, track, cover } = props;
     
             if (!track) throw new HttpException('no_track', HttpStatus.BAD_REQUEST);
                     
+            genres = genres.split(',');
             if (!genres?.length) throw new HttpException('no_genres', HttpStatus.BAD_REQUEST);
             
             if (!name) throw new HttpException('no_name', HttpStatus.BAD_REQUEST);
@@ -70,8 +70,7 @@ export class TracksService {
             return newTrack.toObject();
         }
         catch(e) {
-            console.log(e);
-            throw new HttpException(e, HttpStatus.INTERNAL_SERVER_ERROR)
+            throw new HttpException(e.message, e.status)
         }
         
     }
@@ -107,7 +106,7 @@ export class TracksService {
 
             return track.toObject();
         } catch(e) {
-            throw new HttpException(e, HttpStatus.INTERNAL_SERVER_ERROR);
+            throw new HttpException(e.message, e.status);
         }        
     }
 
