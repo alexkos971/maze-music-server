@@ -1,4 +1,4 @@
-import { Controller, Post, UseGuards, Body, UploadedFiles, UseInterceptors, Delete, Param, Response, HttpStatus, Get } from "@nestjs/common";
+import { Controller, Post, Put, UseGuards, Body, UploadedFiles, UseInterceptors, Delete, Param, Response, HttpStatus, Get } from "@nestjs/common";
 import { TracksService } from "./tracks.service";
 
 import { ApiOperation, ApiResponse, ApiTags } from "@nestjs/swagger";
@@ -43,10 +43,32 @@ export class TracksController {
         });
     }
 
+    @ApiOperation({ summary: 'Save track' })
+    @ApiResponse({ status: 200,  description: "Returns is_saved state" })
+    @UseGuards(JwtAuthGuard)
+    @Put('/:id/save')
+    savePlaylist(
+        @Param() params: any,
+        @SessionInfo() session: GetSessionInfoDto
+    ) {
+        return this.tracksService.saveTrack(params.id, session.userId);
+    }
+    
+    @ApiOperation({ summary: 'Unsave track' })
+    @ApiResponse({ status: 200, description: "Returns is_saved state" })
+    @UseGuards(JwtAuthGuard)
+    @Put('/:id/unsave')
+    unsavePlaylist(
+        @Param() params: any,
+        @SessionInfo() session: GetSessionInfoDto
+    ) {
+        return this.tracksService.unsaveTrack(params.id, session.userId);
+    }
+
     @ApiOperation({ summary: 'Delete track' })
     @ApiResponse({ status: 200, type: Track, description: 'Returns Track object'})
     @UseGuards(JwtAuthGuard)
-    @Delete('/delete/:id')
+    @Delete('/:id/delete')
     deleteTrack(@Param() param) {
         return this.tracksService.deleteTrack(param.id);
     }

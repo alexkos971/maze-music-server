@@ -66,7 +66,7 @@ export class PlaylistsController {
     }
 
     @ApiOperation({ summary: 'Save Playlist' })
-    @ApiResponse({ status: 200, type: Playlist, description: "Returns saved playlist object" })
+    @ApiResponse({ status: 200, description: "Returns is_saved state" })
     @UseGuards(JwtAuthGuard)
     @Put('/:id/save')
     savePlaylist(
@@ -77,7 +77,7 @@ export class PlaylistsController {
     }
     
     @ApiOperation({ summary: 'Unsave Playlist' })
-    @ApiResponse({ status: 200, type: Playlist, description: "Returns unsaved playlist object" })
+    @ApiResponse({ status: 200, description: "Returns is_saved state" })
     @UseGuards(JwtAuthGuard)
     @Put('/:id/unsave')
     unsavePlaylist(

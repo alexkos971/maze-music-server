@@ -28,6 +28,10 @@ export class TracksService {
         return 0;
     }
 
+    async getAll() {
+        return await this.trackModel.find().populate({ path: 'artist', select: '_id full_name avatar description'});
+    }
+
     async uploadTrack(props) {
         try {
             let { userId, genres, name, track, cover } = props;
@@ -75,6 +79,46 @@ export class TracksService {
         
     }
 
+    async saveTrack(id, userId) {
+        try {
+            let is_saved =  await this.userModel.findOneAndUpdate({
+                _id: userId,
+                'saved_tracks': { $ne: id }
+            }, {
+                $addToSet: { 
+                    saved_tracks: id
+                }
+            });
+
+            return {
+                is_saved: Boolean(is_saved)
+            }
+
+
+        } catch (e) {
+            throw new HttpException(e.message, e.status);
+        }
+    }
+
+    async unsaveTrack(id, userId) {
+        try {
+            let is_unsaved =  await this.userModel.findOneAndUpdate({
+                _id: userId,
+            }, {
+                $pull: { 
+                    saved_tracks: id
+                }
+            });
+
+            return {
+                is_unsaved: Boolean(is_unsaved)
+            }
+
+        } catch (e) {
+            throw new HttpException(e.message, e.status);
+        }
+    }
+
     async deleteTrack(trackId: string) {
         try {
             if (!trackId?.length) {
@@ -108,10 +152,5 @@ export class TracksService {
         } catch(e) {
             throw new HttpException(e.message, e.status);
         }        
-    }
-
-    async getAll() {
-        let tracks = await this.trackModel.find().populate({ path: 'artist', select: '_id full_name avatar description'});
-        return tracks;
     }
 }
