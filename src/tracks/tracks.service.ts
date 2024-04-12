@@ -102,7 +102,7 @@ export class TracksService {
 
     async unsaveTrack(id, userId) {
         try {
-            let is_unsaved =  await this.userModel.findOneAndUpdate({
+            let is_saved =  await this.userModel.findOneAndUpdate({
                 _id: userId,
             }, {
                 $pull: { 
@@ -111,7 +111,7 @@ export class TracksService {
             });
 
             return {
-                is_unsaved: Boolean(is_unsaved)
+                is_saved: !Boolean(is_saved)
             }
 
         } catch (e) {
