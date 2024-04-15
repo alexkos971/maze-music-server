@@ -5,6 +5,7 @@ import { MongooseModule } from "@nestjs/mongoose";
 import { User, UserSchema } from "./schemas/user.schema";
 import { AuthModule } from "src/auth/auth.module";
 import { FilesModule } from "src/files/files.module";
+import { FirebaseModule } from "src/firebase/firebase.module";
 
 @Module({
     imports: [
@@ -12,7 +13,8 @@ import { FilesModule } from "src/files/files.module";
         MongooseModule.forFeature([
             {name: User.name, schema: UserSchema}
         ]),
-        FilesModule
+        FilesModule,
+        FirebaseModule
     ],
     exports: [UsersService],
     controllers: [ UsersController],

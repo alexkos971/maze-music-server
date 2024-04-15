@@ -6,11 +6,16 @@ import { SessionInfo } from "src/auth/session-info.decorator";
 import { FileInterceptor } from "@nestjs/platform-express";
 import { ApiOperation, ApiParam, ApiResponse, ApiTags } from "@nestjs/swagger";
 import { GetUserDto } from "./dto/get-user.dto";
+import { FirebaseService } from "src/firebase/firebase.service";
 
 @ApiTags('Users Endpoints')
 @Controller('/api/users')
 export class UsersController {
-    constructor ( private usersService: UsersService ) {}
+    constructor ( 
+        private usersService: UsersService,
+        private firebaseService: FirebaseService
+        
+    ) {}
 
     @Get()
     @UseGuards(JwtAuthGuard)
@@ -22,6 +27,8 @@ export class UsersController {
     @UseGuards(JwtAuthGuard)
     async getProfile(@SessionInfo() session: GetSessionInfoDto) {
         try {
+            console.log(this.firebaseService.getStorageInstance());
+
             return await this.usersService.getUserBy({ _id : session.userId}, {
                 isProfile: true
             });

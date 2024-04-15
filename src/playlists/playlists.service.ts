@@ -4,13 +4,15 @@ import { Model } from 'mongoose';
 import { Playlist, PlaylistDocument } from './schemas/playlist.schema';
 import { FilesService } from 'src/files/files.service';
 import { User, UserDocument } from 'src/users/schemas/user.schema';
+import { FirebaseService } from 'src/firebase/firebase.service';
 
 @Injectable()
 export class PlaylistsService {
     constructor(
         @InjectModel(Playlist.name) private playlistModel: Model<PlaylistDocument>,
         @InjectModel(User.name) private userModel: Model<UserDocument>,
-        private filesService: FilesService,        
+        private filesService: FilesService,   
+        private firebaseService: FirebaseService     
     ) {}
 
     async getAll() {
@@ -47,7 +49,8 @@ export class PlaylistsService {
         try {
             let { name, cover, is_public, description, owner } = props;
 
-            let cover_src = cover ? await this.filesService.saveFile(cover, 'image') : null;
+            // let cover_src = cover ? await this.filesService.saveFile(cover, 'image') : null;
+            let cover_src = cover ? await this.firebaseService.saveFile(cover, 'image') : null;
 
             let newPlaylist = new this.playlistModel({
                 name, 

@@ -30,7 +30,7 @@ export class PlaylistsController {
         return this.playlistService.getPlaylist(params.id);
     }
 
-    @ApiOperation({ summary: 'Create Playlist' })
+    @ApiOperation({ summary: 'Create New Playlist' })
     @ApiConsumes('multipart/form-data')
     @ApiResponse({ status: 200, type: Playlist, description: 'Returns new playlist object' })
     @UseGuards(JwtAuthGuard)
@@ -49,7 +49,7 @@ export class PlaylistsController {
         });
     }
 
-    @ApiOperation({ summary: 'Update Playlist' })
+    @ApiOperation({ summary: 'Update Playlist Details' })
     @ApiConsumes('multipart/form-data')
     @ApiResponse({ status: 200, type: Playlist, description: "Returns updated playlist object" })
     @UseGuards(JwtAuthGuard)
