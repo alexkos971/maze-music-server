@@ -37,4 +37,4 @@ lerna-debug.log*
 
 .env
 
-./firebase-service-account.json
+firebase-service-account.json
