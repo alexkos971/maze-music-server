@@ -40,7 +40,7 @@ export class PlaylistsController {
     createPlaylist(
         @SessionInfo() session: GetSessionInfoDto,
         @Body() body: CreatePlaylistDto,
-        @UploadedFile() cover: Express.Multer.File
+        @UploadedFile() cover: Express.Multer.File | null
     ) {
         return this.playlistService.createPlaylist({
             ...body,
@@ -60,7 +60,7 @@ export class PlaylistsController {
         @Param() params: any,
         @SessionInfo() session: GetSessionInfoDto,
         @Body() body: UpdatePlaylistDto,
-        @UploadedFile() cover: Express.Multer.File
+        @UploadedFile() cover: Express.Multer.File | null
     ) {
         return this.playlistService.updatePlaylist(params.id, session.userId, body, cover);
     }

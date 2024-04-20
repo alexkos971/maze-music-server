@@ -49,7 +49,6 @@ export class PlaylistsService {
         try {
             let { name, cover, is_public, description, owner } = props;
 
-            // let cover_src = cover ? await this.filesService.saveFile(cover, 'image') : null;
             let cover_src = cover ? await this.firebaseService.saveFile(cover, 'image') : null;
 
             let newPlaylist = new this.playlistModel({
@@ -61,6 +60,10 @@ export class PlaylistsService {
             });
 
             await newPlaylist.save();
+
+            if (newPlaylist.cover) {
+                newPlaylist.cover = this.firebaseService.getUrl(newPlaylist.cover, 'image');
+            }
 
             return newPlaylist;
         }
@@ -78,8 +81,8 @@ export class PlaylistsService {
             if (cover) {
             
                 let newCover = playlist.cover
-                    ? await this.filesService.replaceFile(playlist.cover, cover, 'image')                
-                    : await this.filesService.saveFile(cover, 'image');
+                    ? await this.firebaseService.replaceFile(playlist.cover, cover, 'image')                
+                    : await this.firebaseService.saveFile(cover, 'image');
                 
                 if (newCover) {
                     playlist.cover = newCover;
@@ -89,7 +92,7 @@ export class PlaylistsService {
             for (let key in body) {
     
                 if (key == 'cover' && body[key] == "null") {
-                    await this.filesService.removeFile(playlist.cover);
+                    await this.firebaseService.removeFile(playlist.cover, 'image');
                     playlist.cover = null;
                 }
 
@@ -99,6 +102,11 @@ export class PlaylistsService {
             }
             
             await playlist.save();
+            
+            if (playlist.cover) {
+                playlist.cover = this.firebaseService.getUrl(playlist.cover, 'image');
+            }
+            
             return playlist;
         }
 
@@ -193,7 +201,7 @@ export class PlaylistsService {
             let playlist = await this.getPlaylist(id, userId);
     
             if (playlist.cover) {
-                await this.filesService.removeFile(playlist.cover);
+                await this.firebaseService.removeFile(playlist.cover, 'image');
             }
     
             let deletedPlaylist = await this.playlistModel.deleteOne({_id: id, owner: userId});

@@ -26,6 +26,14 @@ export class FirebaseService {
     getStorageInstance() : admin.storage.Storage {
         return this.storage;
     }
+
+    getUrl(file_name: string, type: FileType) : string {
+        const storage = this.getStorageInstance();
+        const bucket = storage.bucket()
+
+        const file_url = `https://firebasestorage.googleapis.com/v0/b/${bucket.name}/o/${encodeURIComponent(type + '/' + file_name)}?alt=media&token=${file_name}`;
+        return file_url;
+    }
     
     async saveFile(file: Express.Multer.File, type: FileType) : Promise<string> {
         try {
@@ -39,12 +47,12 @@ export class FirebaseService {
                 throw new HttpException(`not_acceptable_file`, HttpStatus.NOT_ACCEPTABLE)   
             }
 
-            let file_name = uuid.v4() + '.' + file_ext;
-            
+            let file_name = uuid.v4() + '.' + file_ext;            
+
             const storage = this.getStorageInstance();
             const bucket = storage.bucket()
             
-            let fileUpload = bucket.file(file_name);
+            let fileUpload = bucket.file(`${type}/${file_name}`);
             
             const stream = fileUpload.createWriteStream({
                 metadata: {
@@ -58,46 +66,50 @@ export class FirebaseService {
                 });
 
                 stream.on('finish', () => {
-                    const file_url = `https:/storage.googleapis.com/${bucket.name}/${file_name}`;
-                    resolve(file_url);
+                    resolve(file_name);
                 });
 
                 stream.end(file.buffer);
             })
-
         }
         catch(e) {
             throw new HttpException(e.message, e.status);
         }
     } 
 
-    async removeFile(file_name: string) : Promise<string> {
+    async removeFile(file_name: string, type: FileType) : Promise<string> {
         try {
             if (!file_name) {
                 throw new HttpException(`no_file`, HttpStatus.NO_CONTENT)
             }
             
             const storage = getStorage();
+            // const storage = this.getStorageInstance();
+            // const bucket = storage.bucket();
 
-            const fileRef = ref(storage, file_name);
+            // bucket.deleteFiles({})
+
+            let file_url = type + '/' + file_name;
+
+            const fileRef = ref(storage, file_url);
 
             await deleteObject(fileRef);
             return file_name;
         } 
         catch(e) {
-            throw new HttpException(e, HttpStatus.INTERNAL_SERVER_ERROR)            
+            throw new HttpException(e.message, e.status)            
         }
     }
 
-    async replaceFile(file_name : string, file: Express.Multer.File, type: FileType): Promise<string> {
+    async replaceFile(file_name : string,  file: Express.Multer.File, type: FileType): Promise<string> {
         try {
-            await this.removeFile(file_name);
+            await this.removeFile(file_name, type);
 
             let newFile = await this.saveFile(file, type);            
             return newFile;
         } 
         catch(e) {
-            throw new HttpException(e, HttpStatus.INTERNAL_SERVER_ERROR)            
+            throw new HttpException(e.message, e.status)            
         }
     }
 }
