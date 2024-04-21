@@ -27,7 +27,7 @@ export class FirebaseService {
         return this.storage;
     }
 
-    getUrl(file_name: string, type: FileType) : string {
+    getPublicUrl(file_name: string, type: FileType) : string {
         const storage = this.getStorageInstance();
         const bucket = storage.bucket()
 
@@ -52,8 +52,8 @@ export class FirebaseService {
             const storage = this.getStorageInstance();
             const bucket = storage.bucket()
             
-            let fileUpload = bucket.file(`${type}/${file_name}`);
-            
+            let fileUpload = bucket.file(`${type}/${file_name}`);        
+
             const stream = fileUpload.createWriteStream({
                 metadata: {
                     contentType: file.mimetype
@@ -83,17 +83,11 @@ export class FirebaseService {
                 throw new HttpException(`no_file`, HttpStatus.NO_CONTENT)
             }
             
-            const storage = getStorage();
-            // const storage = this.getStorageInstance();
-            // const bucket = storage.bucket();
-
-            // bucket.deleteFiles({})
-
-            let file_url = type + '/' + file_name;
-
-            const fileRef = ref(storage, file_url);
-
-            await deleteObject(fileRef);
+            const storage = this.getStorageInstance();
+            const bucket = storage.bucket()
+            
+            let fileUpload = bucket.file(`${type}/${file_name}`);
+            await fileUpload.delete();        
             return file_name;
         } 
         catch(e) {

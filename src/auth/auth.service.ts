@@ -4,7 +4,7 @@ import * as bcrypt from "bcrypt";
 import { JwtService } from "@nestjs/jwt/dist";
 import { UsersService } from "src/users/users.service";
 // import { MailService } from "src/mail/mail.service";
-import { FilesService } from "src/files/files.service";
+import { FirebaseService } from "src/firebase/firebase.service";
 
 @Injectable()
 export class AuthService {
@@ -12,7 +12,7 @@ export class AuthService {
         private usersService: UsersService,
         private jwtService: JwtService,
         // private mailService: MailService,
-        private fileService: FilesService
+        private firebaseService: FirebaseService
     ) {}
 
     async signUp(body: SignUpUserDto, avatar: Express.Multer.File | null) {        
@@ -29,7 +29,7 @@ export class AuthService {
     
             const hashedPassword = await bcrypt.hash(body.password, 12);
     
-            let avatar_path = avatar ? await this.fileService.saveFile(avatar, 'image') : null;
+            let avatar_path = avatar ? await this.firebaseService.saveFile(avatar, 'image') : null;
     
             let newUser = await this.usersService.createUser({ 
                 ...body, 
@@ -37,19 +37,26 @@ export class AuthService {
                 avatar: avatar_path
             });        
     
+            if (newUser.avatar) {
+                newUser.avatar = this.firebaseService.getPublicUrl(newUser.avatar, 'image');
+            }
+
             return {
                 token: this.generateToken(newUser),
                 user: newUser
             };
         }
         catch(e) {
-            console.log('Auth.Service - 46', e);
-            throw new HttpException('server_error', HttpStatus.INTERNAL_SERVER_ERROR);
+            throw new HttpException(e.message, e.status);
         }
     }
 
     async signIn(email: string, password: string) {
         const user = await this.validateUser(email, password);
+
+        if (user.avatar) {
+            user.avatar = this.firebaseService.getPublicUrl(user.avatar, 'image');
+        }
 
         return {
             token: this.generateToken(user),

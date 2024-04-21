@@ -1,9 +1,8 @@
 import { HttpException, Injectable, HttpStatus } from "@nestjs/common";
 import { User, UserDocument } from "./schemas/user.schema";
-import { SignUpUserDto } from "./dto/sign-up-user.dto";
 import { InjectModel } from "@nestjs/mongoose";
-import { FilesService } from "src/files/files.service";
 import { Model, ObjectId } from "mongoose";
+import { FirebaseService } from "src/firebase/firebase.service";
 
 type GetUserOptions = {
     withPassword?: boolean,
@@ -15,7 +14,7 @@ type GetUserOptions = {
 export class UsersService {
     constructor ( 
         @InjectModel(User.name) private userModel: Model<UserDocument>,
-        private fileService: FilesService
+        private firebaseService: FirebaseService
     ) {}
     
     async createUser(userDto) {
@@ -40,8 +39,8 @@ export class UsersService {
         if (avatar) {
             
             let newAvatar = user.avatar
-                ? await this.fileService.replaceFile(user.avatar, avatar, 'image')                
-                : await this.fileService.saveFile(avatar, 'image');
+                ? await this.firebaseService.replaceFile(user.avatar, avatar, 'image')                
+                : await this.firebaseService.saveFile(avatar, 'image');
             
             if (newAvatar) {
                 user.avatar = newAvatar;
@@ -55,7 +54,7 @@ export class UsersService {
             }
 
             if (key == 'avatar' && body[key] == "null") {
-                await this.fileService.removeFile(user.avatar);
+                await this.firebaseService.removeFile(user.avatar, 'image');
                 user.avatar = null;
             }
 
@@ -71,6 +70,11 @@ export class UsersService {
         await user.save();
 
         let {password, ...result} = user.toObject();
+
+        if (result.avatar) {
+            result.avatar = this.firebaseService.getPublicUrl(result.avatar, 'image');
+        }
+
         return result;
         
     }
@@ -106,6 +110,10 @@ export class UsersService {
 
             let user = await this.userModel.findOne(props, projection);        
             
+            if (user && user.avatar) {
+                user.avatar = this.firebaseService.getPublicUrl(user.avatar, 'image');
+            }
+
             return user;
         }
         catch(e) {

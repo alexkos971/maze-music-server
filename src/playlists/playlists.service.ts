@@ -2,7 +2,6 @@ import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { Playlist, PlaylistDocument } from './schemas/playlist.schema';
-import { FilesService } from 'src/files/files.service';
 import { User, UserDocument } from 'src/users/schemas/user.schema';
 import { FirebaseService } from 'src/firebase/firebase.service';
 
@@ -11,7 +10,6 @@ export class PlaylistsService {
     constructor(
         @InjectModel(Playlist.name) private playlistModel: Model<PlaylistDocument>,
         @InjectModel(User.name) private userModel: Model<UserDocument>,
-        private filesService: FilesService,   
         private firebaseService: FirebaseService     
     ) {}
 
@@ -62,7 +60,7 @@ export class PlaylistsService {
             await newPlaylist.save();
 
             if (newPlaylist.cover) {
-                newPlaylist.cover = this.firebaseService.getUrl(newPlaylist.cover, 'image');
+                newPlaylist.cover = this.firebaseService.getPublicUrl(newPlaylist.cover, 'image');
             }
 
             return newPlaylist;
@@ -104,7 +102,7 @@ export class PlaylistsService {
             await playlist.save();
             
             if (playlist.cover) {
-                playlist.cover = this.firebaseService.getUrl(playlist.cover, 'image');
+                playlist.cover = this.firebaseService.getPublicUrl(playlist.cover, 'image');
             }
             
             return playlist;

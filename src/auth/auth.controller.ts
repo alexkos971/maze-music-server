@@ -42,7 +42,6 @@ export class AuthController {
             return user;
         }
         catch(e) {
-            console.log('Auth.Controller - 45', e);
             throw new HttpException('server_error', HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }

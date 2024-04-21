@@ -6,7 +6,6 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { Playlist, PlaylistSchema } from './schemas/playlist.schema';
 import { User, UserSchema } from 'src/users/schemas/user.schema';
 
-import { FilesModule } from 'src/files/files.module';
 import { FirebaseModule } from 'src/firebase/firebase.module';
 
 @Module({
@@ -15,7 +14,6 @@ import { FirebaseModule } from 'src/firebase/firebase.module';
       { name: Playlist.name, schema: PlaylistSchema },
       { name: User.name, schema: UserSchema }
     ]),
-    FilesModule,
     FirebaseModule
   ],
   providers: [PlaylistsService],

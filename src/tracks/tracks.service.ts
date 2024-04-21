@@ -2,15 +2,14 @@ import { Injectable, HttpStatus, HttpException, NotFoundException } from "@nestj
 import { InjectModel } from "@nestjs/mongoose";
 import { Model } from "mongoose";
 import { Track, TrackDocument } from "./schemas/track.schema";
-import { FilesService } from "src/files/files.service";
-import * as mm from "music-metadata";
-import * as path from "path";
+import * as mm from "music-metadata-browser";
 import { User, UserDocument } from "src/users/schemas/user.schema";
+import { FirebaseService } from "src/firebase/firebase.service";
 
 @Injectable()
 export class TracksService {
     constructor (
-        private fileService: FilesService,
+        private firebaseService: FirebaseService,
         @InjectModel(User.name) private userModel: Model<UserDocument>,
         @InjectModel(Track.name) private trackModel: Model<TrackDocument>,
     ) {}    
@@ -18,7 +17,7 @@ export class TracksService {
     async getDuration (src : string) : Promise<number> {
         if (!src) return null;
 
-        let metadata = await mm.parseFile(src);
+        let metadata = await mm.fetchFromUrl(src);
 
         if (metadata && metadata.format && metadata.format.duration && metadata.format.duration > 0) {
             let s = metadata.format.duration;
@@ -29,7 +28,24 @@ export class TracksService {
     }
 
     async getAll() {
-        return await this.trackModel.find().populate({ path: 'artist', select: '_id full_name avatar description'});
+        try {
+            let tracks = await this.trackModel.find().populate({ path: 'artist', select: '_id full_name avatar description'});
+        
+            tracks.map(item => {
+                
+                if (item.cover) {
+                    item.cover = this.firebaseService.getPublicUrl(item.cover, 'image');
+                }
+
+                item.src = this.firebaseService.getPublicUrl(item.src, 'audio');
+                return item;
+            });
+
+            return tracks;
+        }
+        catch(e) {
+            throw new HttpException(e.message, e.status);
+        }
     }
 
     async uploadTrack(props) {
@@ -43,10 +59,12 @@ export class TracksService {
             
             if (!name) throw new HttpException('no_name', HttpStatus.BAD_REQUEST);
     
-            let trackSrc = await this.fileService.saveFile(track, 'audio');
-            let duration = await this.getDuration(path.resolve(__dirname, '../..', 'static', trackSrc));
+            let trackSrc = await this.firebaseService.saveFile(track, 'audio');
+
+            const trackUrl = this.firebaseService.getPublicUrl(trackSrc, 'audio');
+            let duration = await this.getDuration(trackUrl);
             
-            let coverSrc = cover ? await this.fileService.saveFile(cover, 'image') : null;
+            let coverSrc = cover ? await this.firebaseService.saveFile(cover, 'image') : null;
 
             let newTrack = await new this.trackModel({
                 name,
@@ -70,6 +88,12 @@ export class TracksService {
                     
                 });                
 
+
+            if (newTrack.cover) {
+                newTrack.cover = this.firebaseService.getPublicUrl(newTrack.cover, 'image');
+            }
+
+            newTrack.src = trackUrl;
 
             return newTrack.toObject();
         }
@@ -134,10 +158,10 @@ export class TracksService {
                 });
             }
 
-            await this.fileService.removeFile(track.src);
+            await this.firebaseService.removeFile(track.src, 'audio');
 
             if (track.cover) {
-                await this.fileService.removeFile(track.cover);
+                await this.firebaseService.removeFile(track.cover, 'image');
             }
 
             await this.userModel.findByIdAndUpdate(track.artist, {
@@ -147,6 +171,11 @@ export class TracksService {
             });
 
             await this.trackModel.deleteOne({ _id: trackId });
+
+            if (track.cover) {
+                track.cover = this.firebaseService.getPublicUrl(track.cover, 'image');
+            }
+            track.src = this.firebaseService.getPublicUrl(track.src, 'audio');
 
             return track.toObject();
         } catch(e) {
