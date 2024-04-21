@@ -21,6 +21,14 @@ export class TracksController {
     getAll() { 
         return this.tracksService.getAll();
     }
+    
+    @ApiOperation({ summary: "Get user's saved tracks" })
+    @ApiResponse({ status: 200, type: [Track], description: "Returns All user's saved tracks objects"})
+    @UseGuards(JwtAuthGuard)
+    @Get('/saved')
+    getSavedTracks( @SessionInfo() session: GetSessionInfoDto ) { 
+        return this.tracksService.getSavedTracks(session.userId);
+    }
 
     @ApiOperation({ summary: 'Upload track' })    
     @ApiResponse({ status: 200, type: Track, description: 'Returns Track object'})

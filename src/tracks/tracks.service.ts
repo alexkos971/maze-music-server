@@ -27,23 +27,42 @@ export class TracksService {
         return 0;
     }
 
+    extendTrackUrl(track: TrackDocument) {        
+        return {
+            ...track.toObject(),
+            cover: track.cover ? this.firebaseService.getPublicUrl(track.cover, 'image') : track.cover,
+            src: this.firebaseService.getPublicUrl(track.src, 'audio')
+        };
+    }
+
     async getAll() {
         try {
+            // Populate - extend field with giver params
             let tracks = await this.trackModel.find().populate({ path: 'artist', select: '_id full_name avatar description'});
         
-            tracks.map(item => {
-                
-                if (item.cover) {
-                    item.cover = this.firebaseService.getPublicUrl(item.cover, 'image');
-                }
+            let trackWithFullPath = tracks.map(item => this.extendTrackUrl(item));
 
-                item.src = this.firebaseService.getPublicUrl(item.src, 'audio');
-                return item;
-            });
-
-            return tracks;
+            return trackWithFullPath;
         }
         catch(e) {
+            throw new HttpException(e.message, e.status);
+        }
+    }
+
+    async getSavedTracks(userId) {
+        try {
+            let user = await this.userModel.findById(userId);
+            if (!user) {
+                throw new HttpException('user_not_found', HttpStatus.NOT_FOUND);
+            }
+
+            let tracks = await this.trackModel.find({
+                '_id': { $in: user.saved_tracks }
+            }).populate({ path: 'artist', select: '_id full_name avatar description'});
+
+            return tracks.map(item => this.extendTrackUrl(item));
+
+        } catch (e) {
             throw new HttpException(e.message, e.status);
         }
     }

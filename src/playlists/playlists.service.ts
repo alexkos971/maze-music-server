@@ -12,10 +12,18 @@ export class PlaylistsService {
         @InjectModel(User.name) private userModel: Model<UserDocument>,
         private firebaseService: FirebaseService     
     ) {}
+    
+    extendPlaylistUrl(playlist: PlaylistDocument) {        
+        return {
+            ...playlist.toObject(),
+            cover: playlist.cover ? this.firebaseService.getPublicUrl(playlist.cover, 'image') : playlist.cover
+        };
+    }
+
 
     async getAll() {
         try {
-            return await this.playlistModel.find();
+            return (await this.playlistModel.find()).map(item => this.extendPlaylistUrl(item));
         }
         catch(e) {
             throw new HttpException(e.message, e.status);   
@@ -24,8 +32,8 @@ export class PlaylistsService {
 
     async getPlaylist(id, ownerId = undefined) {
         try {
-            let playlist = await this.playlistModel.findById(id);
-            
+            let playlist = await this.playlistModel.findById(id).populate({ path: 'tracks'})
+
             if (!playlist) {
                 throw new HttpException('playlist_not_found', HttpStatus.NOT_FOUND);
             }
@@ -35,7 +43,7 @@ export class PlaylistsService {
                 throw new HttpException('forbidden', HttpStatus.FORBIDDEN);
             }
 
-            return playlist;
+            return this.extendPlaylistUrl(playlist);
         }
         catch(e) {
             console.log(e);
@@ -59,11 +67,11 @@ export class PlaylistsService {
 
             await newPlaylist.save();
 
-            if (newPlaylist.cover) {
-                newPlaylist.cover = this.firebaseService.getPublicUrl(newPlaylist.cover, 'image');
-            }
+            // if (newPlaylist.cover) {
+            //     newPlaylist.cover = this.firebaseService.getPublicUrl(newPlaylist.cover, 'image');
+            // }
 
-            return newPlaylist;
+            return this.extendPlaylistUrl(newPlaylist);
         }
 
         catch(e) {
@@ -74,7 +82,11 @@ export class PlaylistsService {
 
     async updatePlaylist(id, userId, body, cover) {
         try {
-            let playlist = await this.getPlaylist(id, userId);
+            let playlist = await this.playlistModel.findById(id); 
+
+            if (userId && playlist.owner != userId) {
+                throw new HttpException('forbidden', HttpStatus.FORBIDDEN);
+            }
 
             if (cover) {
             
@@ -99,13 +111,9 @@ export class PlaylistsService {
                 }
             }
             
-            await playlist.save();
-            
-            if (playlist.cover) {
-                playlist.cover = this.firebaseService.getPublicUrl(playlist.cover, 'image');
-            }
-            
-            return playlist;
+            await playlist.save();        
+        
+            return this.extendPlaylistUrl(playlist);
         }
 
         catch(e) {
@@ -196,14 +204,18 @@ export class PlaylistsService {
 
     async deletePlaylist(id, userId) {
         try {
-            let playlist = await this.getPlaylist(id, userId);
+            let playlist = await this.playlistModel.findById(id); 
+
+            if (userId && playlist.owner != userId) {
+                throw new HttpException('forbidden', HttpStatus.FORBIDDEN);
+            }
     
             if (playlist.cover) {
                 await this.firebaseService.removeFile(playlist.cover, 'image');
             }
     
-            let deletedPlaylist = await this.playlistModel.deleteOne({_id: id, owner: userId});
-            return deletedPlaylist;
+            await this.playlistModel.deleteOne({_id: id, owner: userId});
+            return this.extendPlaylistUrl(playlist);
         }
         catch(e) {
             throw new HttpException(e.message, e.status);
