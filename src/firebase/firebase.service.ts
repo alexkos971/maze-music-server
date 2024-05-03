@@ -1,6 +1,5 @@
 import { HttpException, Injectable, HttpStatus } from '@nestjs/common';
 import * as admin from "firebase-admin";
-import { ref, getStorage, deleteObject } from "firebase/storage";
 import * as path from "path"; 
 import * as uuid from "uuid";
 
@@ -17,7 +16,11 @@ export class FirebaseService {
     
     constructor() {
         admin.initializeApp({
-            credential: admin.credential.cert(path.resolve(__dirname, "../..", 'firebase-service-account.json')), 
+            credential: admin.credential.cert({
+                projectId: process.env.PROJECT_ID,
+                clientEmail: process.env.CLIENT_EMAIL,
+                privateKey: process.env.PRIVATE_KEY
+            }), 
             storageBucket: `gs://${process.env.FIREBASE_STORAGE_BUCKET}`
         });
         this.storage = admin.storage();   
