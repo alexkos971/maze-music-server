@@ -4,7 +4,7 @@ import { JwtAuthGuard } from "src/auth/jwt.auth.guard";
 import { GetSessionInfoDto } from "../auth/dto/get-session-info.dto";
 import { SessionInfo } from "src/auth/session-info.decorator";
 import { FileInterceptor } from "@nestjs/platform-express";
-import { ApiOperation, ApiParam, ApiResponse, ApiTags } from "@nestjs/swagger";
+import { ApiOperation, ApiResponse, ApiTags } from "@nestjs/swagger";
 import { GetUserDto } from "./dto/get-user.dto";
 import { FirebaseService } from "src/firebase/firebase.service";
 

@@ -81,6 +81,7 @@ export class TracksService {
             let trackSrc = await this.firebaseService.saveFile(track, 'audio');
 
             const trackUrl = this.firebaseService.getPublicUrl(trackSrc, 'audio');
+
             let duration = await this.getDuration(trackUrl);
             
             let coverSrc = cover ? await this.firebaseService.saveFile(cover, 'image') : null;

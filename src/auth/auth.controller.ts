@@ -6,9 +6,10 @@ import { CookieService } from './cookie.service';
 import { ApiOkResponse, ApiOperation, ApiResponse, ApiTags, ApiConsumes, ApiCookieAuth } from '@nestjs/swagger';
 import { ValidationPipe } from '../pipes/validation.pipe';
 
-import { SignUpUserDto } from 'src/users/dto/sign-up-user.dto';
-import { SignInUserDto } from 'src/users/dto/sign-in-user.dto';
+import { SignUpUserDto, SignUpGoogleDto } from './dto/sign-up-user.dto';
+import { SignInUserDto } from './dto/sign-in-user.dto';
 import { GetSessionInfoDto } from './dto/get-session-info.dto';
+
 import { JwtAuthGuard } from './jwt.auth.guard';
 import { UsersService } from 'src/users/users.service';
 import { GetUserDto } from 'src/users/dto/get-user.dto';
@@ -21,54 +22,6 @@ export class AuthController {
         private cookieService: CookieService,
         private usersService: UsersService
     ) {}
-
-    // Swagger
-    @ApiOperation({ summary: 'User registration' })
-    @ApiConsumes('multipart/form-data')
-    @ApiResponse({ status: 200, type: GetUserDto, description: 'Returns user object and set JWT-token to the cookis'})
-    
-    // Settings
-    @Post('/sign-up')
-    @UseInterceptors(FileInterceptor('avatar'))
-    @UsePipes(ValidationPipe)    
-    async singUp(
-        @Body() body: SignUpUserDto, 
-        @UploadedFile() avatar: Express.Multer.File | null,
-        @Response({ passthrough: true }) res 
-    ) {
-        try {
-            const {user, token} = await this.authService.signUp(body, avatar ?? null);
-            this.cookieService.setToken(res, token);                
-            return user;
-        }
-        catch(e) {
-            throw new HttpException('server_error', HttpStatus.INTERNAL_SERVER_ERROR);
-        }
-    }
-    
-    @ApiOperation({ summary: 'User login' })    
-    @ApiResponse({ status: 200, type: GetUserDto, description: 'Returns User object and set JWT-token to the cookis'})
-    @Post('/sign-in')
-    async signIn( 
-        @Body() body: SignInUserDto, 
-        @Response({ passthrough: true }) res
-    ) {
-        const {token, user} = await this.authService.signIn(body.email, body.password);
-
-        this.cookieService.setToken(res, token); 
-        return user;
-    }
-
-
-    @Post('/sign-out')
-    @ApiOperation({ summary: 'Removes JWT-token' })
-    @ApiOkResponse({ status: 200, description: 'Removes JWT-token from cookies' })
-    @UseGuards(JwtAuthGuard)
-    signOut(
-        @Response({ passthrough: true }) res
-        ) {
-            this.cookieService.removeToken(res)
-        }
         
     @Get('/session')
     @ApiCookieAuth()
@@ -101,5 +54,88 @@ export class AuthController {
             throw new HttpException('server_error', HttpStatus.SERVICE_UNAVAILABLE)
         }
         
+    }
+
+    
+    // Swagger
+    @ApiOperation({ summary: 'User registration' })
+    @ApiConsumes('multipart/form-data')
+    @ApiResponse({ status: 200, type: GetUserDto, description: 'Returns user object and set JWT-token to the cookis'})
+    
+    // Settings
+    @Post('/sign-up')
+    @UseInterceptors(FileInterceptor('avatar'))
+    @UsePipes(ValidationPipe)    
+    async singUp(
+        @Body() body: SignUpUserDto, 
+        @UploadedFile() avatar: Express.Multer.File | null,
+        @Response({ passthrough: true }) res 
+    ) {
+        try {
+            const {user, token} = await this.authService.signUp(body, avatar ?? null);
+            this.cookieService.setToken(res, token);                
+            return user;
+        }
+        catch(e) {
+            throw new HttpException('server_error', HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+    
+    @ApiOperation({ summary: 'User login' })    
+    @ApiResponse({ status: 200, type: GetUserDto, description: 'Returns User object and set JWT-token to the cookis'})
+    @Post('/sign-in')
+    async signIn( 
+        @Body() body: SignInUserDto, 
+        @Response({ passthrough: true }) res
+    ) {
+        const {token, user} = await this.authService.signIn(body);
+
+        this.cookieService.setToken(res, token); 
+        return user;
+    }
+
+    @ApiOperation({ summary: 'User sign-in with Google' })    
+    @ApiResponse({ status: 200, type: GetUserDto, description: 'Returns User object and set JWT-token to the cookis'})
+    @Post('/google/sign-in')
+    async signInGoogle(
+        @Body('token') token: string, 
+        @Response({ passthrough: true }) res
+    ) {
+        const data = await this.authService.signInGoogle(token);            
+        this.cookieService.setToken(res, data.token); 
+        return data.user;
+    }
+    
+    
+    @ApiOperation({ summary: 'User sign-up with Google' })
+    @ApiConsumes('multipart/form-data')
+    @ApiResponse({ status: 200, type: GetUserDto, description: 'Returns user object and set JWT-token to the cookis'})
+    @Post('/google/sign-up')
+    @UseInterceptors(FileInterceptor('avatar'))
+    @UsePipes(ValidationPipe)    
+    async signUpGoogle(
+        @Body() body: SignUpGoogleDto, 
+        @UploadedFile() avatar: Express.Multer.File | null,
+        @Response({ passthrough: true }) res 
+    ) {
+        try {
+            const data = await this.authService.signUpGoogle(body, avatar ?? null);
+            this.cookieService.setToken(res, data.token);                
+            return data.user;
+
+        } catch(e) {
+            console.log(e)
+            throw new HttpException('server_error', HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @Post('/sign-out')
+    @ApiOperation({ summary: 'Removes JWT-token' })
+    @ApiOkResponse({ status: 200, description: 'Removes JWT-token from cookies' })
+    @UseGuards(JwtAuthGuard)
+    signOut(
+        @Response({ passthrough: true }) res
+    ) {
+        this.cookieService.removeToken(res)
     }
 }

@@ -19,7 +19,6 @@ async function start() {
     .setTitle('Maze Music Server')
     .setDescription('Private API for maze-music clients')
     .setVersion('1.0')
-    .addTag('music')
     .addCookieAuth('authCookie', {
       type: 'http',
       in: 'Header',

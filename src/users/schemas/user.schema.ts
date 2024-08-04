@@ -33,6 +33,10 @@ export class User {
     @Prop({ required: true })
     password: string;
 
+    @ApiProperty({ required: false, description: "User's Google Id, if signed up with google", example: '5472635847658' })
+    @Prop({ required: false })
+    google_id: string;
+
     @ApiProperty({description: 'Some user description', example: 'Some words about me'})
     @Prop()
     description: string | null;
