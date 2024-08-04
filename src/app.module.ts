@@ -5,7 +5,6 @@ import { UsersModule } from './users/users.module';
 import { ConfigModule } from '@nestjs/config';
 import { AuthModule } from './auth/auth.module';
 import { TracksModule } from './tracks/tracks.module';
-import { FirebaseModule } from './firebase/firebase.module';
 import { PlaylistsModule } from './playlists/playlists.module';
 
 @Module({
@@ -17,14 +16,10 @@ import { PlaylistsModule } from './playlists/playlists.module';
     // MailModule,
     AuthModule,
     UsersModule,
-    FirebaseModule,
     TracksModule,
-    FirebaseModule,
     PlaylistsModule
   ],
   controllers: [],
-  providers: [
-    // FirebaseService
-  ],
+  providers: [],
 })
 export class AppModule {}

@@ -5,7 +5,6 @@ import { AuthService } from './auth.service';
 import { UsersModule } from 'src/users/users.module';
 // import { MailModule } from 'src/mail/mail.module';
 import { CookieService } from './cookie.service';
-import { FirebaseModule } from 'src/firebase/firebase.module';
 
 @Module({
   imports: [
@@ -18,7 +17,6 @@ import { FirebaseModule } from 'src/firebase/firebase.module';
       }
     }),
     // MailModule,
-    FirebaseModule
   ],
   exports: [AuthService, JwtModule],
   controllers: [AuthController],

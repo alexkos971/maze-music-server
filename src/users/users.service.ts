@@ -17,16 +17,36 @@ export class UsersService {
         private firebaseService: FirebaseService
     ) {}
     
-    async createUser(userDto) {
-        const newUser = await new this.userModel({
-            ...userDto
-        });
+    extendUserUrl(user: UserDocument) {        
+        return {
+            ...user.toObject(),
+            avatar: user.avatar ? this.firebaseService.getPublicUrl(user.avatar, 'image') : user.avatar
+        };
+    }
 
-        await newUser.save();
+    async createUser({data, avatar}) {
+        try {
+            let avatarUrl = avatar ? await this.firebaseService.saveFile(avatar, 'image') : null;
+
+            const newUser = await new this.userModel({
+                ...data,
+                avatar: avatarUrl
+            });
     
-        const { password, ...result } = newUser.toObject();
+            await newUser.save();
+        
+            const { password, google_id, ...result } = newUser.toObject();
 
-        return result;
+            if (result.avatar) {
+                result.avatar = this.firebaseService.getPublicUrl(result.avatar, 'image');
+            }
+    
+            return result;
+        }
+        catch(e) {
+            console.log(e);
+            throw new HttpException(e.message, e.status);
+        }
     }
 
     async updateUser(email : string, body: any, avatar: Express.Multer.File) {
@@ -69,7 +89,7 @@ export class UsersService {
         
         await user.save();
 
-        let {password, ...result} = user.toObject();
+        let {password, google_id, ...result} = user.toObject();
 
         if (result.avatar) {
             result.avatar = this.firebaseService.getPublicUrl(result.avatar, 'image');
@@ -79,14 +99,17 @@ export class UsersService {
         
     }
  
-    async getUsers() {
-        return await this.userModel.find({}, {
+    async getUsers() {        
+        let users = await this.userModel.find({}, {
             password: 0,
+            google_id: 0,
             saved_tracks: 0,
             saved_playlists: 0,
             saved_artists: 0,
             saved_albums: 0
         });
+
+        return users.map(item => this.extendUserUrl(item));
     }
 
     async getUserBy(props, options : GetUserOptions  = {
@@ -95,10 +118,11 @@ export class UsersService {
         isProfile: false
     }) {
         try {
-            let projection = { password: 0, saved_tracks: 0, saved_playlists: 0, saved_artists: 0, saved_albums: 0 };
+            let projection = { password: 0,google_id: 0, saved_tracks: 0, saved_playlists: 0, saved_artists: 0, saved_albums: 0 };
 
             if (options.withPassword) {
                 delete projection.password; 
+                delete projection.google_id; 
             }
             
             if (options.isProfile) {

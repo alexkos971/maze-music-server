@@ -1,6 +1,5 @@
 import { HttpException, Injectable, HttpStatus } from '@nestjs/common';
 import * as admin from "firebase-admin";
-import * as path from "path"; 
 import * as uuid from "uuid";
 
 export type FileType = 'image' | 'audio';
@@ -17,9 +16,9 @@ export class FirebaseService {
     constructor() {
         admin.initializeApp({
             credential: admin.credential.cert({
-                projectId: process.env.PROJECT_ID,
-                clientEmail: process.env.CLIENT_EMAIL,
-                privateKey: process.env.PRIVATE_KEY
+                projectId: process.env.FIREBASE_PROJECT_ID,
+                clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
+                privateKey: process.env.FIREBASE_PRIVATE_KEY
             }), 
             storageBucket: `gs://${process.env.FIREBASE_STORAGE_BUCKET}`
         });
