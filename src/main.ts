@@ -2,8 +2,8 @@ import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import * as cookieParser from "cookie-parser";
+import * as bodyParser from "body-parser";
 import { ValidationPipe } from '@nestjs/common';
-
 
 async function start() {
   const app = await NestFactory.create(AppModule);
@@ -32,6 +32,8 @@ async function start() {
   });
 
   app.use(cookieParser());
+  app.use(bodyParser.json({ limit: '50mb' }));
+  app.use(bodyParser.urlencoded({ limit: '50mb', extended: true }));
 
   app.useGlobalPipes(new ValidationPipe({
     whitelist: true,
