@@ -11,7 +11,7 @@ async function start() {
   app.enableCors({
     allowedHeaders: ['content-type'],
     origin: true,
-    credentials: true,
+    credentials: true
   });
 
   // Init Swagger
