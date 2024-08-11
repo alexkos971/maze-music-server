@@ -7,10 +7,11 @@ export class CookieService {
 
     setToken(res: Response, token: string) {
         res.cookie(CookieService.tokenKey, token, { 
-            httpOnly: false, 
+            httpOnly: true,
             maxAge: 24 * 60 * 60 * 1000,
-            secure: true,
-            sameSite: 'lax' 
+            
+            secure: process.env.NODE_ENV === 'production'
+            // sameSite: 'none' 
         });
     }
 
