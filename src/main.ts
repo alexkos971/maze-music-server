@@ -9,14 +9,8 @@ async function start() {
   const app = await NestFactory.create(AppModule);
 
   app.enableCors({
-    // allowedHeaders: ['content-type'],
-    origin: [
-      'http://localhost:3000',
-      'https://maze-music-client.vercel.app'
-    ],
+    origin: true,
     credentials: true
-    // preflightContinue: false,
-    // optionsSuccessStatus: 204
   });
 
   // Init Swagger
