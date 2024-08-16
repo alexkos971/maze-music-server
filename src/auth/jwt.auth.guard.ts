@@ -14,7 +14,11 @@ export class JwtAuthGuard implements CanActivate {
             const token = req.cookies[CookieService.tokenKey];
 
             if (!token) {
-                throw new UnauthorizedException({ statusCode: 401, message: `Invalid Authorization: token is not set` });
+                throw new UnauthorizedException({ 
+                    statusCode: 401, 
+                    message: 'server_error',
+                    dev_message: `Invalid Authorization: token is not set` 
+                });
             }
 
             const sessionInfo = await this.jwtService.verifyAsync(token);

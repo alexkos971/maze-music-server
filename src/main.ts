@@ -10,7 +10,10 @@ async function start() {
 
   app.enableCors({
     // allowedHeaders: ['content-type'],
-    origin: true,
+    origin: [
+      'http://localhost:3000',
+      'https://maze-music-client.vercel.app'
+    ],
     credentials: true
     // preflightContinue: false,
     // optionsSuccessStatus: 204
