@@ -9,9 +9,11 @@ async function start() {
   const app = await NestFactory.create(AppModule);
 
   app.enableCors({
-    allowedHeaders: ['content-type'],
+    // allowedHeaders: ['content-type'],
     origin: true,
     credentials: true
+    // preflightContinue: false,
+    // optionsSuccessStatus: 204
   });
 
   // Init Swagger

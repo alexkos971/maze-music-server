@@ -13,7 +13,7 @@ import { CookieService } from './cookie.service';
       secret: process.env.JWT_SECRET || 'secret',
       global: true,
       signOptions: {
-        expiresIn: '24h'
+        expiresIn: '7d'
       }
     }),
     // MailModule,
