@@ -21,7 +21,11 @@ export class JwtAuthGuard implements CanActivate {
 
             req['session'] = sessionInfo;
         } catch (e) {
-            throw new UnauthorizedException({ statusCode: 501, message: `Unauthorized request - ${e}` });
+            throw new UnauthorizedException({ 
+                statusCode: 501, 
+                message: 'server_error', 
+                dev_message: e 
+            });
         }
 
         return true;
