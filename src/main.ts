@@ -9,7 +9,10 @@ async function start() {
   const app = await NestFactory.create(AppModule);
 
   app.enableCors({
-    origin: true,
+    origin: [
+      'http://localhost:3000',
+      process.env.FRONTEND_ORIGIN_URL
+    ],
     credentials: true
   });
 
